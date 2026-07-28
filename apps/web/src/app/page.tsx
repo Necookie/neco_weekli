@@ -1,25 +1,12 @@
+import { AppShell } from "@/components/app-shell";
 import { getDashboard } from "@/lib/demo";
 
 export default function Home() {
   const d = getDashboard();
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))]">
-      {/* Nav */}
-      <header className="flex items-center justify-between py-1">
-        <div className="flex items-center gap-2">
-          <span className="grid size-7 place-items-center rounded-lg bg-primary text-on-primary font-display text-base font-extrabold">
-            w
-          </span>
-          <span className="font-display text-xl font-extrabold tracking-tight text-ink">
-            weekli
-          </span>
-        </div>
-        <span className="grid size-9 place-items-center rounded-full bg-ink text-sm font-semibold text-primary">
-          N
-        </span>
-      </header>
-
+    <AppShell>
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4">
       {/* Hero — polarity-flipped dark card, green headline number */}
       <section className="rounded-xl bg-ink p-6 text-white">
         <p className="text-sm font-medium text-white/60">Safe to spend today</p>
@@ -107,17 +94,8 @@ export default function Home() {
       <p className="px-1 text-center text-xs text-mute">
         Weekli tracks and plans your money — it never holds or moves funds.
       </p>
-
-      {/* Bottom quick-log CTA — the lime-green pill */}
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <button
-          type="button"
-          className="w-full rounded-xl bg-primary py-3.5 text-center font-display text-base font-extrabold text-on-primary transition active:scale-[0.99] active:bg-primary-neutral"
-        >
-          + Log expense
-        </button>
       </div>
-    </main>
+    </AppShell>
   );
 }
 
