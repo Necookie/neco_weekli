@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { ActivityCard } from "@/components/dashboard/activity-card";
 import { BillsCard } from "@/components/dashboard/bills-card";
 import { DangerCard } from "@/components/dashboard/danger-card";
 import { HeroCard } from "@/components/dashboard/hero-card";
@@ -31,6 +32,7 @@ export default function Home() {
         {/* Right rail */}
         <div className="flex flex-col gap-4 lg:gap-6">
           <SavingsCard d={d} />
+          <ActivityCard d={d} />
         </div>
       </div>
 
