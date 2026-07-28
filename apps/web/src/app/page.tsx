@@ -1,4 +1,3 @@
-import { AppShell } from "@/components/app-shell";
 import { ActivityCard } from "@/components/dashboard/activity-card";
 import { BillsCard } from "@/components/dashboard/bills-card";
 import { DangerCard } from "@/components/dashboard/danger-card";
@@ -12,7 +11,7 @@ export default function Home() {
   const d = getDashboard();
 
   return (
-    <AppShell>
+    <>
       {/* Desktop greeting */}
       <div className="mb-6 hidden lg:block">
         <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink">
@@ -41,6 +40,6 @@ export default function Home() {
       <p className="mt-6 px-1 text-center text-xs text-mute">
         Weekli tracks and plans your money — it never holds or moves funds.
       </p>
-    </AppShell>
+    </>
   );
 }
