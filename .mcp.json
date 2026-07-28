@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "turso": {
+      "command": "npx",
+      "args": ["-y", "mcp-turso-cloud"],
+      "env": {
+        "TURSO_API_TOKEN": "${TURSO_API_TOKEN}",
+        "TURSO_ORGANIZATION": "${TURSO_ORGANIZATION}",
+        "TURSO_DATABASE_URL": "${TURSO_DATABASE_URL}",
+        "TURSO_AUTH_TOKEN": "${TURSO_AUTH_TOKEN}"
+      }
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}

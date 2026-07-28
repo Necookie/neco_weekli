@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+.next/
+out/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# env & secrets
+.env
+.env.local
+.env*.local
+.env.production
+
+# databases (local dev)
+*.db
+*.db-journal
+*.sqlite
+local.db
+
+# misc
+.DS_Store
+*.log
+npm-debug.log*
+coverage/
+.vercel
+next-env.d.ts

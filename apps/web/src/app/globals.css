@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0f172a;
+  --color-mist: #64748b;
+  --color-safe: #10b981;
+  --color-danger: #ef4444;
+  --color-reserve: #6366f1;
+  --color-savings: #f59e0b;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  background: #f8fafc;
+  color: var(--color-ink);
+  overscroll-behavior-y: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #0b1120;
+    color: #e2e8f0;
+  }
+}

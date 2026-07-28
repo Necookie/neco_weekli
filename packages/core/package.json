@@ -1,0 +1,28 @@
+{
+  "name": "@neco/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Platform-agnostic domain core: schema, money, dates, math engine, ledger.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/db/schema.ts",
+    "./db": "./src/db/client.ts"
+  },
+  "scripts": {
+    "test": "node --test src/money.test.ts src/dates.test.ts src/engine.test.ts src/ledger.test.ts",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "drizzle-orm": "^0.38.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "drizzle-kit": "^0.30.0",
+    "typescript": "^5.7.0"
+  }
+}
