@@ -132,16 +132,16 @@ export function getDashboard(now: Date = new Date()) {
   }));
   const maxDay = Math.max(1, ...perDay.map((d) => d.minor));
 
-  // Recent activity — most recent first.
+  // Activity — most recent first. Cards slice to what they need.
   const activity = [...expenses]
     .sort((a, b) => b.dayIndex - a.dayIndex || b.id.localeCompare(a.id))
-    .slice(0, 6)
     .map((e) => ({
       id: e.id,
       title: e.title,
       category: e.category,
       minor: toMinor(e.amountMajor),
       dayLabel: DAY_LABEL[e.dayIndex] ?? "",
+      dayIndex: e.dayIndex,
     }));
 
   // Savings vault progress toward a goal.
