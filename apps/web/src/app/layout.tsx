@@ -1,6 +1,21 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, Manrope } from "next/font/google";
 import { PwaRegister } from "./pwa-register";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["400", "600"],
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  weight: ["700", "800"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Weekli",
@@ -15,7 +30,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  themeColor: "#e8ebe6",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -29,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
       <body>
         {children}
         <PwaRegister />

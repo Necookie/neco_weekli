@@ -1,16 +1,55 @@
 @import "tailwindcss";
 
+/* =============================================================================
+   Weekli design tokens — a lime-on-sage fintech system (our own brand,
+   pattern inspired, no third-party branding).
+   ========================================================================== */
 @theme {
-  --color-ink: #0f172a;
-  --color-mist: #64748b;
-  --color-safe: #10b981;
-  --color-danger: #ef4444;
-  --color-reserve: #6366f1;
-  --color-savings: #f59e0b;
+  /* Brand & accent */
+  --color-primary: #9fe870;
+  --color-primary-active: #cdffad;
+  --color-primary-neutral: #c5edab;
+  --color-primary-pale: #e2f6d5;
+  --color-on-primary: #0e0f0c;
+
+  /* Surface */
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #e8ebe6;
+
+  /* Text */
+  --color-ink: #0e0f0c;
+  --color-ink-deep: #163300;
+  --color-body: #454745;
+  --color-mute: #868685;
+
+  /* Semantic */
+  --color-positive: #2ead4b;
+  --color-positive-deep: #054d28;
+  --color-warning: #ffd11a;
+  --color-warning-deep: #b86700;
+  --color-warning-content: #4a3b1c;
+  --color-negative: #d03238;
+  --color-negative-deep: #a72027;
+  --color-negative-darkest: #a7000d;
+  --color-negative-bg: #320707;
+
+  /* Tertiary accents */
+  --color-accent-orange: #ffc091;
+  --color-accent-cyan: #38c8ff;
+
+  /* Type — Manrope carries the heavy display voice, Inter the utility voice */
+  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radius — 24px is our canonical card + button pill */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 html,
@@ -20,14 +59,14 @@ body {
 
 body {
   -webkit-font-smoothing: antialiased;
-  background: #f8fafc;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "calt";
+  background: var(--color-canvas-soft);
   color: var(--color-ink);
   overscroll-behavior-y: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #0b1120;
-    color: #e2e8f0;
-  }
+::selection {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
