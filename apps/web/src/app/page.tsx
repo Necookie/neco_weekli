@@ -5,6 +5,7 @@ import { DangerCard } from "@/components/dashboard/danger-card";
 import { HeroCard } from "@/components/dashboard/hero-card";
 import { SavingsCard } from "@/components/dashboard/savings-card";
 import { VaultSplit } from "@/components/dashboard/vault-split";
+import { WeekOverview } from "@/components/dashboard/week-overview";
 import { getDashboard } from "@/lib/demo";
 
 export default function Home() {
@@ -25,6 +26,7 @@ export default function Home() {
         <div className="flex flex-col gap-4 lg:col-span-2 lg:gap-6">
           <HeroCard d={d} />
           <VaultSplit d={d} />
+          <WeekOverview d={d} />
           <DangerCard d={d} />
           <BillsCard d={d} />
         </div>
