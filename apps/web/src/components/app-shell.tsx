@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { BottomNav } from "@/components/nav/bottom-nav";
 import { SidebarNav } from "@/components/nav/sidebar-nav";
@@ -57,9 +58,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* Mobile top bar */}
         <header className="flex items-center justify-between px-4 py-3 lg:hidden">
           <Wordmark />
-          <span className="grid size-9 place-items-center rounded-full bg-ink text-sm font-semibold text-primary">
+          <Link
+            href="/settings"
+            aria-label="Settings"
+            className="grid size-9 place-items-center rounded-full bg-ink text-sm font-semibold text-primary"
+          >
             N
-          </span>
+          </Link>
         </header>
 
         <main className="mx-auto w-full max-w-6xl px-4 pb-28 lg:px-8 lg:py-8">
