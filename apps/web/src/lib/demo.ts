@@ -20,9 +20,6 @@ import {
 const CURRENCY = process.env.NEXT_PUBLIC_DEFAULT_CURRENCY ?? "PHP";
 const LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? "en-PH";
 
-const PAYDAY: Weekday = "MONDAY";
-const WEEK_START: Weekday = "MONDAY";
-
 const WEEK_ORDER: Weekday[] = [
   "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
 ];
@@ -36,21 +33,16 @@ export type Category =
   | "Health"
   | "Shopping";
 
-const bills: Bill[] = [
-  { id: "netflix", title: "Netflix", monthlyAmount: toMinor(549), dueDayOfMonth: 15 },
-  { id: "spotify", title: "Spotify", monthlyAmount: toMinor(199), dueDayOfMonth: 5 },
-  { id: "gym", title: "Gym", monthlyAmount: toMinor(1200), dueDayOfMonth: 1 },
-  { id: "mobile", title: "Mobile Plan", monthlyAmount: toMinor(999), dueDayOfMonth: 20 },
+export const CATEGORIES: Category[] = [
+  "Food & Dining",
+  "Transport",
+  "Groceries",
+  "Bills & Utilities",
+  "Health",
+  "Shopping",
 ];
 
-const accruals: BillAccrual[] = [
-  { billId: "netflix", accrued: toMinor(410) },
-  { billId: "spotify", accrued: toMinor(199) },
-  { billId: "gym", accrued: toMinor(300) },
-];
-
-// This week's expenses (dayIndex: 0 = Mon … 6 = Sun). Sum = ₱2,300.
-type Expense = {
+export type Expense = {
   id: string;
   title: string;
   category: Category;
@@ -58,7 +50,57 @@ type Expense = {
   dayIndex: number;
 };
 
-const expenses: Expense[] = [
+export type Contribution = {
+  id: string;
+  label: string;
+  when: string;
+  amountMinor: number;
+};
+
+export type Settings = {
+  income: number;
+  savingsPct: number;
+  payday: Weekday;
+  weekStart: Weekday;
+  currency: string;
+  billReminders: boolean;
+  rolloverEnabled: boolean;
+};
+
+export type AppState = {
+  settings: Settings;
+  bills: Bill[];
+  accruals: BillAccrual[];
+  expenses: Expense[];
+  savings: { balanceMinor: number; goalMinor: number; label: string };
+  contributions: Contribution[];
+};
+
+export const DEFAULT_SETTINGS: Settings = {
+  income: toMinor(15000),
+  savingsPct: 0.2,
+  payday: "MONDAY",
+  weekStart: "MONDAY",
+  currency: CURRENCY,
+  billReminders: true,
+  rolloverEnabled: true,
+};
+
+const DEFAULT_BILLS: Bill[] = [
+  { id: "netflix", title: "Netflix", monthlyAmount: toMinor(549), dueDayOfMonth: 15 },
+  { id: "spotify", title: "Spotify", monthlyAmount: toMinor(199), dueDayOfMonth: 5 },
+  { id: "gym", title: "Gym", monthlyAmount: toMinor(1200), dueDayOfMonth: 1 },
+  { id: "mobile", title: "Mobile Plan", monthlyAmount: toMinor(999), dueDayOfMonth: 20 },
+];
+
+const DEFAULT_ACCRUALS: BillAccrual[] = [
+  { billId: "netflix", accrued: toMinor(410) },
+  { billId: "spotify", accrued: toMinor(199) },
+  { billId: "gym", accrued: toMinor(300) },
+];
+
+// This week's expenses (dayIndex: 0 = Mon … 6 = Sun). Sum = ₱2,300.
+const DEFAULT_EXPENSES: Expense[] = [
   { id: "e1", title: "Groceries", category: "Groceries", amountMajor: 650, dayIndex: 0 },
   { id: "e2", title: "Morning coffee", category: "Food & Dining", amountMajor: 120, dayIndex: 0 },
   { id: "e3", title: "Jeepney", category: "Transport", amountMajor: 60, dayIndex: 1 },
@@ -67,6 +109,24 @@ const expenses: Expense[] = [
   { id: "e6", title: "Mobile load", category: "Bills & Utilities", amountMajor: 300, dayIndex: 3 },
   { id: "e7", title: "Pharmacy", category: "Health", amountMajor: 460, dayIndex: 4 },
 ];
+
+export const DEFAULT_STATE: AppState = {
+  settings: DEFAULT_SETTINGS,
+  bills: DEFAULT_BILLS,
+  accruals: DEFAULT_ACCRUALS,
+  expenses: DEFAULT_EXPENSES,
+  savings: {
+    balanceMinor: toMinor(12450),
+    goalMinor: toMinor(50000),
+    label: "Emergency fund",
+  },
+  contributions: [
+    { id: "h1", label: "Payday allocation", when: "This Mon", amountMinor: toMinor(3000) },
+    { id: "h2", label: "Week rollover", when: "Last Sun", amountMinor: toMinor(180) },
+    { id: "h3", label: "Payday allocation", when: "Last Mon", amountMinor: toMinor(3000) },
+    { id: "h4", label: "Manual top-up", when: "2 weeks ago", amountMinor: toMinor(500) },
+  ],
+};
 
 function todayIndex(now: Date): number {
   return WEEK_ORDER.indexOf(getWeekday(now));
@@ -86,21 +146,15 @@ function greeting(now: Date): string {
   return "Good evening";
 }
 
-export function getDashboard(now: Date = new Date()) {
-  const income = toMinor(15000);
-  const savingsPct = 0.2;
+/** Computes the dashboard view-model from mutable app state. Pure function. */
+export function computeDashboard(state: AppState, now: Date = new Date()) {
+  const { settings, bills, accruals, expenses, savings, contributions } = state;
+  const { income, savingsPct, payday, weekStart, currency } = settings;
 
-  const split = computeSplit({
-    income,
-    bills,
-    accruals,
-    savingsPct,
-    today: now,
-    payday: PAYDAY,
-  });
+  const split = computeSplit({ income, bills, accruals, savingsPct, today: now, payday });
 
   const spentThisWeek = expenses.reduce((s, e) => s + toMinor(e.amountMajor), 0);
-  const weekEnd = weekEndFrom(now, WEEK_START);
+  const weekEnd = weekEndFrom(now, weekStart);
   const cap = dailySafeCap({
     weeklySafeToSpend: split.safeToSpend,
     spentThisWeek,
@@ -108,7 +162,7 @@ export function getDashboard(now: Date = new Date()) {
     weekEnd,
   });
 
-  const danger = dangerDays(bills, accruals, { today: now, payday: PAYDAY });
+  const danger = dangerDays(bills, accruals, { today: now, payday });
 
   const accrualMap = new Map(accruals.map((a) => [a.billId, a.accrued]));
   const billProgress = bills.map((b) => ({
@@ -144,16 +198,10 @@ export function getDashboard(now: Date = new Date()) {
       dayIndex: e.dayIndex,
     }));
 
-  // Savings vault progress toward a goal.
-  const savings = {
-    balanceMinor: toMinor(12450),
-    goalMinor: toMinor(50000),
-    label: "Emergency fund",
-    pct: Math.round((12450 / 50000) * 100),
-  };
+  const savingsPctDone = Math.round((savings.balanceMinor / savings.goalMinor) * 100);
 
   return {
-    currency: CURRENCY,
+    currency,
     locale: LOCALE,
     greeting: greeting(now),
     income,
@@ -165,9 +213,15 @@ export function getDashboard(now: Date = new Date()) {
     billProgress,
     weekSpend: { perDay, maxDay },
     activity,
-    savings,
-    fmt: (m: number) => formatMoney(m, CURRENCY, LOCALE),
+    savings: { ...savings, pct: savingsPctDone },
+    contributions,
+    fmt: (m: number) => formatMoney(m, currency, LOCALE),
   };
 }
 
-export type Dashboard = ReturnType<typeof getDashboard>;
+export type Dashboard = ReturnType<typeof computeDashboard>;
+
+/** @deprecated use computeDashboard(state) via useAppStore() instead. */
+export function getDashboard(now: Date = new Date()): Dashboard {
+  return computeDashboard(DEFAULT_STATE, now);
+}
