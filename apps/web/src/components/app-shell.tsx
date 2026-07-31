@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { BottomNav } from "@/components/nav/bottom-nav";
 import { SidebarNav } from "@/components/nav/sidebar-nav";
+import { Toast } from "@/components/ui/toast";
 
 function Wordmark({ size = "md" }: { size?: "md" | "lg" }) {
   const box = size === "lg" ? "size-8 text-lg" : "size-7 text-base";
@@ -73,6 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       <BottomNav />
+      <Toast />
     </div>
   );
 }

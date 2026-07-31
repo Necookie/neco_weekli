@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Manrope } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
+import { AppDataProvider } from "@/lib/store";
 import { PwaRegister } from "./pwa-register";
 import "./globals.css";
 
@@ -47,7 +48,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
       <body>
-        <AppShell>{children}</AppShell>
+        <AppDataProvider>
+          <AppShell>{children}</AppShell>
+        </AppDataProvider>
         <PwaRegister />
       </body>
     </html>
