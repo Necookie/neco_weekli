@@ -220,8 +220,3 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
 }
 
 export type Dashboard = ReturnType<typeof computeDashboard>;
-
-/** @deprecated use computeDashboard(state) via useAppStore() instead. */
-export function getDashboard(now: Date = new Date()): Dashboard {
-  return computeDashboard(DEFAULT_STATE, now);
-}
