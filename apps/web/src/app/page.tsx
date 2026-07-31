@@ -1,3 +1,5 @@
+"use client";
+
 import { ActivityCard } from "@/components/dashboard/activity-card";
 import { BillsCard } from "@/components/dashboard/bills-card";
 import { DangerCard } from "@/components/dashboard/danger-card";
@@ -5,10 +7,10 @@ import { HeroCard } from "@/components/dashboard/hero-card";
 import { SavingsCard } from "@/components/dashboard/savings-card";
 import { VaultSplit } from "@/components/dashboard/vault-split";
 import { WeekOverview } from "@/components/dashboard/week-overview";
-import { getDashboard } from "@/lib/demo";
+import { useAppStore } from "@/lib/store";
 
 export default function Home() {
-  const d = getDashboard();
+  const { dashboard: d } = useAppStore();
 
   return (
     <>
