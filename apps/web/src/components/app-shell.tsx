@@ -1,7 +1,8 @@
-import { Plus } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { LogExpenseModal } from "@/components/dashboard/log-expense-modal";
 import { BottomNav } from "@/components/nav/bottom-nav";
+import { SidebarLogExpenseButton } from "@/components/nav/log-expense-button";
 import { SidebarNav } from "@/components/nav/sidebar-nav";
 import { Toast } from "@/components/ui/toast";
 
@@ -35,13 +36,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         <div className="flex flex-col gap-4">
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 font-display text-sm font-extrabold text-on-primary transition active:scale-[0.99]"
-          >
-            <Plus className="size-4" strokeWidth={3} />
-            Log expense
-          </button>
+          <SidebarLogExpenseButton />
           <div className="flex items-center gap-2 px-1">
             <span className="grid size-8 place-items-center rounded-full bg-ink text-xs font-semibold text-primary">
               N
@@ -75,6 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <BottomNav />
       <Toast />
+      <LogExpenseModal />
     </div>
   );
 }

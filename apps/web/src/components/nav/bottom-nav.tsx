@@ -1,9 +1,9 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isActive, type NavItem, NAV } from "@/lib/nav";
+import { FabLogExpenseButton } from "./log-expense-button";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -14,13 +14,7 @@ export function BottomNav() {
         <BottomLink key={item.href} item={item} active={isActive(item.href, pathname)} />
       ))}
 
-      <button
-        type="button"
-        aria-label="Log expense"
-        className="-mt-6 grid size-14 shrink-0 place-items-center rounded-full bg-primary text-on-primary shadow-lg shadow-primary/40 transition active:scale-95"
-      >
-        <Plus className="size-6" strokeWidth={3} />
-      </button>
+      <FabLogExpenseButton />
 
       {NAV.slice(2, 4).map((item) => (
         <BottomLink key={item.href} item={item} active={isActive(item.href, pathname)} />
