@@ -85,6 +85,7 @@ export function AddBillModal({ open, onClose }: { open: boolean; onClose: () => 
             inputMode="numeric"
             min="1"
             max="31"
+            step="1"
             required
             value={dueDay}
             onChange={(e) => setDueDay(e.target.value)}
