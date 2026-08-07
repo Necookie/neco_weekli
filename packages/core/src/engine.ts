@@ -111,18 +111,24 @@ export interface Split {
   shortfall: boolean;
 }
 
-/** Divide an incoming payday amount into the three vaults (FR-3). */
+/** Divide an incoming payday amount into the three vaults (FR-3).
+ *
+ * Vault-sum invariant: `billsReserve + savings + safeToSpend === income`
+ * always holds. Priority order on shortfall: bills > savings > spend.
+ */
 export function computeSplit(input: SplitInput): Split {
   const billsReserve = weeklyReserve(input.bills, input.accruals, {
     today: input.today,
     payday: input.payday,
   });
-  const savings = Math.round(input.income * input.savingsPct);
+  const rawSavings = Math.round(input.income * input.savingsPct);
+  // Bills have highest priority; savings absorbs any remaining deficit.
+  const savings = clampMin(Math.min(rawSavings, input.income - billsReserve));
   const rawSpend = input.income - billsReserve - savings;
 
   return {
     billsReserve,
-    savings: clampMin(savings),
+    savings,
     safeToSpend: clampMin(rawSpend),
     shortfall: rawSpend < 0,
   };
