@@ -144,7 +144,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         ...s.contributions,
       ],
     }));
-    notify(`Added ${amountMajor.toLocaleString()} to savings`);
+    notify(`Added ₱${amountMajor.toLocaleString("en-PH")} to savings`);
   };
 
   const updateSettings = (partial: Partial<Settings>) => {
