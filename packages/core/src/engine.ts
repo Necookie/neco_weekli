@@ -184,7 +184,10 @@ export function dangerDays(
       payday: ctx.payday,
       accrued,
     });
-    const paydays = paydaysBetween(ctx.today, addDays(due, 1), ctx.payday);
+    const paydays = Math.max(
+      1,
+      paydaysBetween(ctx.today, addDays(due, 1), ctx.payday),
+    );
     const projected = Math.min(
       b.monthlyAmount,
       accrued + perPayday * paydays,
