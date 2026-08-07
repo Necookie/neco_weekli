@@ -57,11 +57,16 @@ function loadInitial(): AppState {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_STATE;
     const parsed = JSON.parse(raw) as AppState;
-    return {
+    const merged: AppState = {
       ...DEFAULT_STATE,
       ...parsed,
       settings: { ...DEFAULT_STATE.settings, ...parsed.settings },
     };
+    // Prune accruals whose billId has no corresponding bill — they are stale
+    // references left over from deleted bills and would grow unboundedly.
+    const billIds = new Set(merged.bills.map((b) => b.id));
+    merged.accruals = merged.accruals.filter((a) => billIds.has(a.billId));
+    return merged;
   } catch {
     return DEFAULT_STATE;
   }
