@@ -34,7 +34,7 @@ export function ActivityView() {
         {days.map(([dayIndex, items]) => (
           <div key={dayIndex}>
             <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-mute">
-              {FULL_DAY[dayIndex]}
+              {FULL_DAY[dayIndex] ?? "Unknown"}
             </p>
             <div className="divide-y divide-black/5 rounded-xl bg-canvas">
               {items.map((a) => (
