@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { allocate, clampMin, formatMoney, toMinor, toMajor } from "./money.ts";
+import { addMoney, allocate, clampMin, formatMoney, toMinor, toMajor } from "./money.ts";
 
 test("toMinor / toMajor round-trip without float drift", () => {
   assert.equal(toMinor(15000), 1_500_000);
@@ -26,4 +26,16 @@ test("allocate never loses or invents a minor unit", () => {
 
 test("formatMoney renders currency from minor units", () => {
   assert.match(formatMoney(54_900, "PHP", "en-PH"), /549/);
+});
+
+test("addMoney sums multiple Money values with no float drift", () => {
+  assert.equal(addMoney(toMinor(100), toMinor(200), toMinor(300)), toMinor(600));
+  // Empty call should return 0.
+  assert.equal(addMoney(), 0);
+  // Negative amounts (vault debits) work correctly.
+  assert.equal(addMoney(toMinor(1000), -toMinor(250)), toMinor(750));
+});
+
+test("allocate with a single weight allocates the full amount", () => {
+  assert.deepEqual(allocate(toMinor(500), [1]), [toMinor(500)]);
 });
