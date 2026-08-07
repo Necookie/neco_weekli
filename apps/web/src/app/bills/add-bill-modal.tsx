@@ -67,7 +67,7 @@ export function AddBillModal({ open, onClose }: { open: boolean; onClose: () => 
             <input
               type="number"
               inputMode="decimal"
-              min="0"
+              min="0.01"
               step="0.01"
               required
               value={amount}
