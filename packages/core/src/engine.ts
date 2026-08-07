@@ -115,14 +115,19 @@ export interface Split {
  *
  * Vault-sum invariant: `billsReserve + savings + safeToSpend === income`
  * always holds. Priority order on shortfall: bills > savings > spend.
+ * The `shortfall` flag indicates income was insufficient to fully fund all
+ * three vaults at their requested amounts.
  */
 export function computeSplit(input: SplitInput): Split {
-  const billsReserve = weeklyReserve(input.bills, input.accruals, {
+  const rawBillsReserve = weeklyReserve(input.bills, input.accruals, {
     today: input.today,
     payday: input.payday,
   });
+  const shortfall = rawBillsReserve + Math.round(input.income * input.savingsPct) > input.income;
+  // Bills have highest priority — but the reported vault value is capped at income.
+  const billsReserve = Math.min(rawBillsReserve, input.income);
   const rawSavings = Math.round(input.income * input.savingsPct);
-  // Bills have highest priority; savings absorbs any remaining deficit.
+  // Savings absorbs any remaining deficit after bills.
   const savings = clampMin(Math.min(rawSavings, input.income - billsReserve));
   const rawSpend = input.income - billsReserve - savings;
 
@@ -130,7 +135,7 @@ export function computeSplit(input: SplitInput): Split {
     billsReserve,
     savings,
     safeToSpend: clampMin(rawSpend),
-    shortfall: rawSpend < 0,
+    shortfall,
   };
 }
 
@@ -190,10 +195,7 @@ export function dangerDays(
       payday: ctx.payday,
       accrued,
     });
-    const paydays = Math.max(
-      1,
-      paydaysBetween(ctx.today, addDays(due, 1), ctx.payday),
-    );
+    const paydays = paydaysBetween(ctx.today, addDays(due, 1), ctx.payday);
     const projected = Math.min(
       b.monthlyAmount,
       accrued + perPayday * paydays,

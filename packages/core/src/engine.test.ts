@@ -124,3 +124,45 @@ test("dangerDays is empty when bills are on track", () => {
   });
   assert.deepEqual(danger, []);
 });
+
+test("computeSplit vault-sum invariant holds even during a shortfall", () => {
+  const income = toMinor(500);
+  const split = computeSplit({
+    income,
+    bills: [{ ...netflix, monthlyAmount: toMinor(2000) }],
+    accruals: [],
+    savingsPct: 0.2,
+    today: d("2026-07-27"),
+    payday: "MONDAY",
+  });
+  // The three vaults must always sum to exactly income.
+  assert.equal(
+    split.billsReserve + split.savings + split.safeToSpend,
+    income,
+    "vaults must sum to income even during shortfall",
+  );
+  assert.equal(split.shortfall, true);
+  assert.equal(split.safeToSpend, 0);
+  // Savings must never exceed what income minus bills can cover.
+  assert.ok(split.savings >= 0);
+  assert.ok(split.billsReserve + split.savings <= income);
+});
+
+test("dangerDays flags a bill due today with no paydays left before due date", () => {
+  // Bill is due today (07-29, Wednesday). paydaysBetween returns 0 for
+  // [today, tomorrow) — no Monday in that 1-day window. So projected =
+  // accrued + perPayday * 0 = 0 < monthlyAmount → correctly flagged.
+  const dueToday: Bill = {
+    id: "rent",
+    title: "Rent",
+    monthlyAmount: toMinor(8000),
+    dueDayOfMonth: 29,
+  };
+  const danger = dangerDays([dueToday], [], {
+    today: d("2026-07-29"),
+    payday: "MONDAY",
+  });
+  assert.equal(danger.length, 1, "bill due today with 0 accrued must be flagged");
+  assert.ok(danger[0]!.shortfall > 0);
+  assert.equal(danger[0]!.shortfall, dueToday.monthlyAmount, "shortfall is the full amount");
+});
