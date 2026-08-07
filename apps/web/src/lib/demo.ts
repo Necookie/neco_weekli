@@ -198,7 +198,10 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
       dayIndex: e.dayIndex,
     }));
 
-  const savingsPctDone = Math.round((savings.balanceMinor / savings.goalMinor) * 100);
+  const savingsPctDone =
+    savings.goalMinor > 0
+      ? Math.round((savings.balanceMinor / savings.goalMinor) * 100)
+      : 0;
 
   return {
     currency,
