@@ -26,7 +26,7 @@ export function SavingsCard({ d }: { d: Dashboard }) {
       <div className="h-2 overflow-hidden rounded-full bg-white/60">
         <div
           className="h-full rounded-full bg-positive"
-          style={{ width: `${Math.max(s.pct, 4)}%` }}
+          style={{ width: `${s.pct > 0 ? Math.max(s.pct, 4) : 0}%` }}
         />
       </div>
     </section>
