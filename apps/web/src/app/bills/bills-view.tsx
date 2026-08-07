@@ -81,7 +81,7 @@ export function BillsView() {
                   className={`h-full rounded-full ${
                     b.pct >= 100 ? "bg-positive" : risk ? "bg-negative" : "bg-ink"
                   }`}
-                  style={{ width: `${Math.max(b.pct, 4)}%` }}
+                  style={{ width: `${b.pct > 0 ? Math.max(b.pct, 4) : 0}%` }}
                 />
               </div>
             </div>
