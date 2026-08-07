@@ -10,7 +10,10 @@ import { AddMoneyModal } from "./add-money-modal";
 export function SavingsView() {
   const { dashboard: d } = useAppStore();
   const [addOpen, setAddOpen] = useState(false);
-  const weeklyTarget = Math.round(d.income * d.savingsPct);
+  // Use the split value rather than re-deriving income * savingsPct: computeSplit
+  // already accounts for shortfall priority, so this matches what was actually
+  // allocated to the savings vault on payday.
+  const weeklyTarget = d.split.savings;
 
   return (
     <>
