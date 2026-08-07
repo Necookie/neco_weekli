@@ -65,7 +65,10 @@ export function SettingsView() {
     const incomeMajor = Number(income);
     const pct = Number(savingsPct);
     updateSettings({
-      income: Number.isFinite(incomeMajor) ? toMinor(incomeMajor) : state.settings.income,
+      income:
+        Number.isFinite(incomeMajor) && incomeMajor > 0
+          ? toMinor(incomeMajor)
+          : state.settings.income,
       savingsPct: Number.isFinite(pct) ? Math.min(100, Math.max(0, pct)) / 100 : state.settings.savingsPct,
       payday,
       weekStart,
