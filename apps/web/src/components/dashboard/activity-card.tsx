@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Dashboard } from "@/lib/demo";
 import { CategoryIcon } from "./category-icon";
 
@@ -6,9 +7,9 @@ export function ActivityCard({ d }: { d: Dashboard }) {
     <section className="rounded-xl bg-canvas p-5 lg:p-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-mute">Recent activity</h2>
-        <a href="/activity" className="text-xs font-semibold text-ink-deep">
+        <Link href="/activity" className="text-xs font-semibold text-ink-deep">
           See all
-        </a>
+        </Link>
       </div>
       <ul className="divide-y divide-black/5">
         {d.activity.slice(0, 6).map((a) => (
