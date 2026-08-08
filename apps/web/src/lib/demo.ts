@@ -146,6 +146,18 @@ function greeting(now: Date): string {
   return "Good evening";
 }
 
+/** Returns a stable money-formatter function for a given locale+currency pair. */
+const _fmtFnCache = new Map<string, (m: number) => string>();
+function makeFmt(currency: string): (m: number) => string {
+  const key = `${LOCALE}:${currency}`;
+  let fn = _fmtFnCache.get(key);
+  if (!fn) {
+    fn = (m: number) => formatMoney(m, currency, LOCALE);
+    _fmtFnCache.set(key, fn);
+  }
+  return fn;
+}
+
 /** Computes the dashboard view-model from mutable app state. Pure function. */
 export function computeDashboard(state: AppState, now: Date = new Date()) {
   const { settings, bills, accruals, expenses, savings, contributions } = state;
@@ -218,7 +230,7 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
     activity,
     savings: { ...savings, pct: savingsPctDone },
     contributions,
-    fmt: (m: number) => formatMoney(m, currency, LOCALE),
+    fmt: makeFmt(currency),
   };
 }
 
