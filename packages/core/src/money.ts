@@ -15,15 +15,20 @@ export const addMoney = (...xs: Money[]): Money => xs.reduce((a, b) => a + b, 0)
 /** Floor a value at `min` (default 0) — Safe-to-Spend never shows negative. */
 export const clampMin = (m: Money, min: Money = 0): Money => (m < min ? min : m);
 
+const _fmtCache = new Map<string, Intl.NumberFormat>();
+
 export function formatMoney(
   m: Money,
   currency = "PHP",
   locale = "en-PH",
 ): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-  }).format(m / 100);
+  const key = `${locale}:${currency}`;
+  let fmt = _fmtCache.get(key);
+  if (!fmt) {
+    fmt = new Intl.NumberFormat(locale, { style: "currency", currency });
+    _fmtCache.set(key, fmt);
+  }
+  return fmt.format(m / 100);
 }
 
 /**
