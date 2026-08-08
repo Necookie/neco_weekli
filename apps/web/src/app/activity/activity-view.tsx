@@ -14,12 +14,12 @@ type ActivityItem = Dashboard["activity"][number];
 export function ActivityView() {
   const { dashboard: d } = useAppStore();
 
-  const byDay = new Map<number, ActivityItem[]>();
-  for (const a of d.activity) {
-    const arr = byDay.get(a.dayIndex) ?? [];
+  const byDay = d.activity.reduce<Map<number, ActivityItem[]>>((acc, a) => {
+    const arr = acc.get(a.dayIndex) ?? [];
     arr.push(a);
-    byDay.set(a.dayIndex, arr);
-  }
+    acc.set(a.dayIndex, arr);
+    return acc;
+  }, new Map());
   const days = [...byDay.entries()].sort((a, b) => b[0] - a[0]);
   const total = d.activity.reduce((s, a) => s + a.minor, 0);
 
