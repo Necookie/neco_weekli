@@ -38,6 +38,7 @@ export const MONTHLY_WEEKS = 4.33;
 /**
  * Flat "typical weekly bills" figure for display. NOT used to drive the
  * reserve — {@link requiredThisPayday} does that, due-date aware.
+ * @returns Rounded weekly estimate in minor units.
  */
 export function weeklyBillEstimate(bills: Bill[]): Money {
   const monthly = bills.reduce((s, b) => s + b.monthlyAmount, 0);
@@ -59,6 +60,7 @@ export interface AccrualContext {
  * Amount to lock into Bills Reserve for one bill on THIS payday, so the bill is
  * fully funded by its due date. Spreads the outstanding amount evenly across
  * the paydays remaining before (and including) the due date.
+ * @returns Minor-unit amount to reserve on this payday (ceiling-rounded); 0 if already fully funded.
  */
 export function requiredThisPayday(bill: Bill, ctx: AccrualContext): Money {
   const accrued = ctx.accrued ?? 0;
@@ -79,7 +81,10 @@ export interface ReserveContext {
   payday: Weekday;
 }
 
-/** Total to lock into Bills Reserve on this payday across all active bills. */
+/**
+ * Total to lock into Bills Reserve on this payday across all active bills.
+ * @returns Sum of {@link requiredThisPayday} for every bill in minor units.
+ */
 export function weeklyReserve(
   bills: Bill[],
   accruals: BillAccrual[],
@@ -122,6 +127,7 @@ export interface Split {
  * always holds. Priority order on shortfall: bills > savings > spend.
  * The `shortfall` flag indicates income was insufficient to fully fund all
  * three vaults at their requested amounts.
+ * @returns {@link Split} with exact minor-unit allocation for each vault.
  */
 export function computeSplit(input: SplitInput): Split {
   const rawBillsReserve = weeklyReserve(input.bills, input.accruals, {
@@ -159,7 +165,10 @@ export interface DailyCap {
   daysLeft: number;
 }
 
-/** Dynamic daily Safe-to-Spend cap (FR-4). Never divides by zero, never < 0. */
+/**
+ * Dynamic daily Safe-to-Spend cap (FR-4). Never divides by zero, never < 0.
+ * @returns {@link DailyCap} with today's spending cap, remaining budget, overspent flag, and days left.
+ */
 export function dailySafeCap(input: DailyCapInput): DailyCap {
   const remaining = input.weeklySafeToSpend - input.spentThisWeek;
   // include today -> minimum 1, so the final day of the week is safe.
@@ -183,6 +192,7 @@ export interface DangerDay {
 /**
  * Bills that will NOT be fully funded by their due date at the current accrual
  * pace (FR-9). Empty array means every bill is on track.
+ * @returns Array of {@link DangerDay} entries, one per at-risk bill, sorted by insertion order.
  */
 export function dangerDays(
   bills: Bill[],
