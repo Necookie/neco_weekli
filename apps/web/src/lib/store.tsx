@@ -92,9 +92,17 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     hydrated.current = true;
   }, []);
 
+  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (!hydrated.current) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (persistTimer.current) clearTimeout(persistTimer.current);
+    persistTimer.current = setTimeout(() => {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }, 300);
+    return () => {
+      if (persistTimer.current) clearTimeout(persistTimer.current);
+    };
   }, [state]);
 
   useEffect(() => {
