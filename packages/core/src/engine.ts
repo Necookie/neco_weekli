@@ -44,6 +44,11 @@ export function weeklyBillEstimate(bills: Bill[]): Money {
   return Math.round(monthly / MONTHLY_WEEKS);
 }
 
+/** Build a fast billId → accrued lookup from the accruals array. */
+function buildAccrualMap(accruals: BillAccrual[]): Map<string, Money> {
+  return new Map(accruals.map((a) => [a.billId, a.accrued]));
+}
+
 export interface AccrualContext {
   today: Date;
   payday: Weekday;
@@ -80,7 +85,7 @@ export function weeklyReserve(
   accruals: BillAccrual[],
   ctx: ReserveContext,
 ): Money {
-  const map = new Map(accruals.map((a) => [a.billId, a.accrued]));
+  const map = buildAccrualMap(accruals);
   return bills.reduce(
     (s, b) =>
       s +
@@ -184,7 +189,7 @@ export function dangerDays(
   accruals: BillAccrual[],
   ctx: ReserveContext,
 ): DangerDay[] {
-  const map = new Map(accruals.map((a) => [a.billId, a.accrued]));
+  const map = buildAccrualMap(accruals);
   const out: DangerDay[] = [];
 
   for (const b of bills) {
