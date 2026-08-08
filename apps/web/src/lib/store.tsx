@@ -3,6 +3,7 @@
 import { type Bill, toMinor } from "@neco/core";
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -104,58 +105,67 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const dashboard = useMemo(() => computeDashboard(state), [state]);
 
-  const notify = (message: string) => {
+  const notify = useCallback((message: string) => {
     setToast(message);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), 2500);
-  };
+  }, []);
 
-  const addExpense = ({ title, category, amountMajor, dayIndex }: AddExpenseInput) => {
-    setState((s) => ({
-      ...s,
-      expenses: [
-        ...s.expenses,
-        { id: nextId("e"), title, category, amountMajor, dayIndex },
-      ],
-    }));
-    notify(`Logged ${title}`);
-  };
+  const addExpense = useCallback(
+    ({ title, category, amountMajor, dayIndex }: AddExpenseInput) => {
+      setState((s) => ({
+        ...s,
+        expenses: [
+          ...s.expenses,
+          { id: nextId("e"), title, category, amountMajor, dayIndex },
+        ],
+      }));
+      notify(`Logged ${title}`);
+    },
+    [notify],
+  );
 
-  const addBill = ({ title, monthlyAmountMajor, dueDayOfMonth }: AddBillInput) => {
-    const id = nextId("b");
-    const bill: Bill = { id, title, monthlyAmount: toMinor(monthlyAmountMajor), dueDayOfMonth };
-    setState((s) => ({
-      ...s,
-      bills: [...s.bills, bill],
-      accruals: [...s.accruals, { billId: id, accrued: 0 }],
-    }));
-    notify(`Added ${title}`);
-  };
+  const addBill = useCallback(
+    ({ title, monthlyAmountMajor, dueDayOfMonth }: AddBillInput) => {
+      const id = nextId("b");
+      const bill: Bill = { id, title, monthlyAmount: toMinor(monthlyAmountMajor), dueDayOfMonth };
+      setState((s) => ({
+        ...s,
+        bills: [...s.bills, bill],
+        accruals: [...s.accruals, { billId: id, accrued: 0 }],
+      }));
+      notify(`Added ${title}`);
+    },
+    [notify],
+  );
 
-  const addMoney = (amountMajor: number) => {
-    setState((s) => ({
-      ...s,
-      savings: {
-        ...s.savings,
-        balanceMinor: s.savings.balanceMinor + toMinor(amountMajor),
-      },
-      contributions: [
-        { id: nextId("c"), label: "Manual top-up", when: "Just now", amountMinor: toMinor(amountMajor) },
-        ...s.contributions,
-      ],
-    }));
-    notify(`Added ₱${amountMajor.toLocaleString("en-PH")} to savings`);
-  };
+  const addMoney = useCallback(
+    (amountMajor: number) => {
+      setState((s) => ({
+        ...s,
+        savings: {
+          ...s.savings,
+          balanceMinor: s.savings.balanceMinor + toMinor(amountMajor),
+        },
+        contributions: [
+          { id: nextId("c"), label: "Manual top-up", when: "Just now", amountMinor: toMinor(amountMajor) },
+          ...s.contributions,
+        ],
+      }));
+      notify(`Added ₱${amountMajor.toLocaleString("en-PH")} to savings`);
+    },
+    [notify],
+  );
 
-  const updateSettings = (partial: Partial<Settings>) => {
+  const updateSettings = useCallback((partial: Partial<Settings>) => {
     setState((s) => ({ ...s, settings: { ...s.settings, ...partial } }));
-  };
+  }, []);
 
-  const resetDemo = () => {
+  const resetDemo = useCallback(() => {
     setState(DEFAULT_STATE);
     if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEY);
     notify("Signed out — local demo data reset");
-  };
+  }, [notify]);
 
   const value: Ctx = {
     state,
