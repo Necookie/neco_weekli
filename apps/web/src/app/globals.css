@@ -57,10 +57,14 @@ body {
   height: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   -webkit-font-smoothing: antialiased;
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  font-feature-settings: "calt";
+  font-feature-settings: "calt", "kern", "liga";
   background: var(--color-canvas-soft);
   color: var(--color-ink);
   overscroll-behavior-y: none;
