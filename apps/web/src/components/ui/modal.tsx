@@ -1,7 +1,10 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useId, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
+
+const FOCUSABLE =
+  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 export function Modal({
   open,
@@ -15,7 +18,9 @@ export function Modal({
   children: ReactNode;
 }) {
   const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
 
+  // Escape key
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -25,6 +30,37 @@ export function Modal({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  // Focus trap + initial focus
+  useEffect(() => {
+    if (!open || !dialogRef.current) return;
+    const el = dialogRef.current;
+    const focusable = (): NodeListOf<HTMLElement> => el.querySelectorAll(FOCUSABLE);
+
+    // Move focus to the first focusable element.
+    const first = focusable()[0];
+    first?.focus();
+
+    function onTab(e: KeyboardEvent) {
+      if (e.key !== "Tab") return;
+      const nodes = focusable();
+      if (!nodes.length) return;
+      const last = nodes[nodes.length - 1]!;
+      if (e.shiftKey) {
+        if (document.activeElement === nodes[0]) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          nodes[0]!.focus();
+        }
+      }
+    }
+    el.addEventListener("keydown", onTab);
+    return () => el.removeEventListener("keydown", onTab);
+  }, [open]);
+
   if (!open) return null;
 
   return (
@@ -33,6 +69,7 @@ export function Modal({
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
