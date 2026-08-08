@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeading } from "@/components/page-heading";
 import { useAppStore } from "@/lib/store";
 import { AddBillModal } from "./add-bill-modal";
@@ -24,8 +24,14 @@ function ordinal(n: number): string {
 export function BillsView() {
   const { dashboard: d } = useAppStore();
   const [addOpen, setAddOpen] = useState(false);
-  const atRisk = new Set(d.danger.map((x) => x.billId));
-  const totalMonthly = d.billProgress.reduce((s, b) => s + b.monthlyAmount, 0);
+  const atRisk = useMemo(
+    () => new Set(d.danger.map((x) => x.billId)),
+    [d.danger],
+  );
+  const totalMonthly = useMemo(
+    () => d.billProgress.reduce((s, b) => s + b.monthlyAmount, 0),
+    [d.billProgress],
+  );
 
   return (
     <>
