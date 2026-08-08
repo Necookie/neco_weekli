@@ -39,6 +39,8 @@ export function allocate(amount: Money, weights: number[]): Money[] {
   const out = weights.map(() => 0);
   const total = weights.reduce((a, b) => a + b, 0);
   if (total <= 0) return out;
+  // Fast path: with a single slot, the entire amount goes there.
+  if (weights.length === 1) return [amount];
 
   const raw = weights.map((w) => (amount * w) / total);
   raw.forEach((v, i) => {
