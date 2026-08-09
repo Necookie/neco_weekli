@@ -1,22 +1,9 @@
 "use client";
 
-import { toMinor, toMajor, type Weekday } from "@neco/core";
+import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
 import { useEffect, useState, type ReactNode } from "react";
 import { PageHeading } from "@/components/page-heading";
 import { useAppStore } from "@/lib/store";
-
-const WEEKDAYS: Weekday[] = [
-  "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
-];
-const WEEKDAY_LABEL: Record<Weekday, string> = {
-  MONDAY: "Monday",
-  TUESDAY: "Tuesday",
-  WEDNESDAY: "Wednesday",
-  THURSDAY: "Thursday",
-  FRIDAY: "Friday",
-  SATURDAY: "Saturday",
-  SUNDAY: "Sunday",
-};
 
 const inputCls =
   "w-full rounded-md border border-ink bg-canvas px-4 py-3 text-sm text-ink outline-none transition focus:ring-2 focus:ring-primary/50";
@@ -114,7 +101,7 @@ export function SettingsView() {
                 onChange={(e) => setPayday(e.target.value as Weekday)}
                 className={inputCls}
               >
-                {WEEKDAYS.map((day) => (
+                {WEEKDAY_ORDER.map((day) => (
                   <option key={day} value={day}>
                     {WEEKDAY_LABEL[day]}
                   </option>
@@ -166,7 +153,7 @@ export function SettingsView() {
               onChange={(e) => setWeekStart(e.target.value as Weekday)}
               className={inputCls}
             >
-              {WEEKDAYS.map((day) => (
+              {WEEKDAY_ORDER.map((day) => (
                 <option key={day} value={day}>
                   {WEEKDAY_LABEL[day]}
                 </option>
