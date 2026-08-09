@@ -1,30 +1,10 @@
 "use client";
 
 import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
+import { Field, inputCls } from "@/components/ui/field";
 import { PageHeading } from "@/components/page-heading";
 import { useAppStore } from "@/lib/store";
-
-const inputCls =
-  "w-full rounded-md border border-ink bg-canvas px-4 py-3 text-sm text-ink outline-none transition focus:ring-2 focus:ring-primary/50";
-
-function Field({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>
-      {children}
-      {hint && <span className="mt-1 block text-xs text-mute">{hint}</span>}
-    </label>
-  );
-}
 
 export function SettingsView() {
   const { state, updateSettings, resetDemo, notify } = useAppStore();
