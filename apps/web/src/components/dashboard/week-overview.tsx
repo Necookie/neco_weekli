@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { Dashboard } from "@/lib/demo";
+import type { Dashboard } from "@/lib/dashboard";
 
 export function WeekOverview({ d }: { d: Dashboard }) {
   const { perDay, maxDay } = d.weekSpend;

@@ -1,5 +1,5 @@
 import { PiggyBank } from "lucide-react";
-import type { Dashboard } from "@/lib/demo";
+import type { Dashboard } from "@/lib/dashboard";
 
 export function SavingsCard({ d }: { d: Dashboard }) {
   const s = d.savings;

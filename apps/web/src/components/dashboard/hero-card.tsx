@@ -1,4 +1,4 @@
-import type { Dashboard } from "@/lib/demo";
+import type { Dashboard } from "@/lib/dashboard";
 
 export function HeroCard({ d }: { d: Dashboard }) {
   return (

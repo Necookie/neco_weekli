@@ -1,4 +1,4 @@
-import type { Dashboard } from "@/lib/demo";
+import type { Dashboard } from "@/lib/dashboard";
 
 export function DangerCard({ d }: { d: Dashboard }) {
   if (d.danger.length === 0) return null;

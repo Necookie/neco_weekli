@@ -1,13 +1,10 @@
 "use client";
 
+import { DAY_LABEL_FULL } from "@neco/core";
 import { CategoryIcon } from "@/components/dashboard/category-icon";
 import { PageHeading } from "@/components/page-heading";
-import { type Dashboard } from "@/lib/demo";
+import { type Dashboard } from "@/lib/dashboard";
 import { useAppStore } from "@/lib/store";
-
-const FULL_DAY = [
-  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
-];
 
 type ActivityItem = Dashboard["activity"][number];
 
@@ -34,7 +31,7 @@ export function ActivityView() {
         {days.map(([dayIndex, items]) => (
           <div key={dayIndex}>
             <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-mute">
-              {FULL_DAY[dayIndex] ?? "Unknown"}
+              {DAY_LABEL_FULL[dayIndex] ?? "Unknown"}
             </p>
             <div className="divide-y divide-black/5 rounded-xl bg-canvas">
               {items.map((a) => (

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Dashboard } from "@/lib/demo";
+import type { Dashboard } from "@/lib/dashboard";
 import { CategoryIcon } from "./category-icon";
 
 export function ActivityCard({ d }: { d: Dashboard }) {

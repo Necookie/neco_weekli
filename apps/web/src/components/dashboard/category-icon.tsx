@@ -7,7 +7,7 @@ import {
   Utensils,
 } from "lucide-react";
 import type { ComponentType } from "react";
-import type { Category } from "@/lib/demo";
+import type { Category } from "@/lib/types";
 
 const ICONS: Record<
   Category,
