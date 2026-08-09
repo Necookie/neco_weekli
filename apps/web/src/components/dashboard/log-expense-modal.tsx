@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { DAY_LABEL_SHORT } from "@neco/core";
-import { modalInputCls, Modal } from "@/components/ui/modal";
+import { Modal, modalInputCls } from "@/components/ui";
 import { CATEGORIES, type Category } from "@/lib/types";
 import { useAppStore } from "@/lib/store";
 

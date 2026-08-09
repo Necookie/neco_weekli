@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { modalInputCls, Modal } from "@/components/ui/modal";
+import { Modal, modalInputCls } from "@/components/ui";
 import { useAppStore } from "@/lib/store";
 
 export function AddBillModal({ open, onClose }: { open: boolean; onClose: () => void }) {
