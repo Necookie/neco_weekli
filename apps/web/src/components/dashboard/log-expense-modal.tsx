@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { DAY_LABEL_SHORT } from "@neco/core";
 import { modalInputCls, Modal } from "@/components/ui/modal";
-import { CATEGORIES, type Category } from "@/lib/demo";
+import { CATEGORIES, type Category } from "@/lib/types";
 import { useAppStore } from "@/lib/store";
-
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function LogExpenseModal() {
   const { isLogExpenseOpen, closeLogExpense, addExpense } = useAppStore();
@@ -94,7 +93,7 @@ export function LogExpenseModal() {
             onChange={(e) => setDayIndex(Number(e.target.value))}
             className={modalInputCls}
           >
-            {WEEKDAYS.map((day, i) => (
+            {DAY_LABEL_SHORT.map((day, i) => (
               <option key={day} value={i}>
                 {day}
               </option>
