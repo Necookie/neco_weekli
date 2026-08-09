@@ -11,16 +11,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  type AppState,
-  type Category,
-  computeDashboard,
-  type Dashboard,
-  DEFAULT_STATE,
-  type Settings,
-} from "./demo";
+import { computeDashboard, type Dashboard } from "./dashboard.ts";
+import { DEFAULT_STATE } from "./seed.ts";
+import { loadInitial, nextId, STORAGE_KEY } from "./storage.ts";
+import type { AppState, Category, Settings } from "./types.ts";
 
-const STORAGE_KEY = "weekli:state:v1";
+// ─── Input types ─────────────────────────────────────────────────────────────
 
 type AddExpenseInput = {
   title: string;
@@ -34,6 +30,8 @@ type AddBillInput = {
   monthlyAmountMajor: number;
   dueDayOfMonth: number;
 };
+
+// ─── Context shape ────────────────────────────────────────────────────────────
 
 type Ctx = {
   state: AppState;
@@ -52,33 +50,7 @@ type Ctx = {
 
 const AppDataContext = createContext<Ctx | null>(null);
 
-function loadInitial(): AppState {
-  if (typeof window === "undefined") return DEFAULT_STATE;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_STATE;
-    const parsed = JSON.parse(raw) as AppState;
-    const merged: AppState = {
-      ...DEFAULT_STATE,
-      ...parsed,
-      settings: { ...DEFAULT_STATE.settings, ...parsed.settings },
-    };
-    // Prune accruals whose billId has no corresponding bill — they are stale
-    // references left over from deleted bills and would grow unboundedly.
-    const billIds = new Set(merged.bills.map((b) => b.id));
-    merged.accruals = merged.accruals.filter((a) => billIds.has(a.billId));
-    return merged;
-  } catch {
-    return DEFAULT_STATE;
-  }
-}
-
-let bumpId = 0;
-/** Monotonic id, safe even when called multiple times in the same millisecond. */
-function nextId(prefix: string): string {
-  bumpId += 1;
-  return `${prefix}${Date.now()}${bumpId}`;
-}
+// ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(DEFAULT_STATE);
@@ -86,14 +58,15 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [isLogExpenseOpen, setLogExpenseOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Hydrate from localStorage on mount (client-only).
   useEffect(() => {
     setState(loadInitial());
     hydrated.current = true;
   }, []);
 
-  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+  // Debounced localStorage persistence (300 ms after last state change).
   useEffect(() => {
     if (!hydrated.current) return;
     if (persistTimer.current) clearTimeout(persistTimer.current);
@@ -105,6 +78,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     };
   }, [state]);
 
+  // Cleanup toast timer on unmount.
   useEffect(() => {
     return () => {
       if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -193,6 +167,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }
 
+// ─── Consumer hook ────────────────────────────────────────────────────────────
+
+/** Returns the app data context. Must be called inside an {@link AppDataProvider}. */
 export function useAppStore(): Ctx {
   const ctx = useContext(AppDataContext);
   if (!ctx) throw new Error("useAppStore must be used within AppDataProvider");
