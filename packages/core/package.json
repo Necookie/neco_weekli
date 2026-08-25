@@ -10,7 +10,7 @@
     "./db": "./src/db/client.ts"
   },
   "scripts": {
-    "test": "node --test src/money.test.ts src/dates.test.ts src/engine.test.ts src/ledger.test.ts",
+    "test": "node --test src/money.test.ts src/dates.test.ts src/engine.test.ts src/ledger.test.ts src/runway.test.ts",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
