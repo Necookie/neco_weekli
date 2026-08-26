@@ -15,6 +15,8 @@ export const users = sqliteTable("users", {
   /** Only set when incomeType = FIXED. Minor units. */
   fixedWeeklyAmount: integer("fixed_weekly_amount"),
   savingsPercentage: real("savings_percentage").notNull().default(0),
+  /** Minimum baseline floor for weekly essential expenses. Minor units. */
+  essentialWeeklyBaselineMinor: integer("essential_weekly_baseline_minor"),
   paydayWeekday: text("payday_weekday").notNull().default("MONDAY"),
   weekStartWeekday: text("week_start_weekday").notNull().default("MONDAY"),
   currencyCode: text("currency_code").notNull().default("PHP"),
@@ -42,8 +44,13 @@ export const subscriptions = sqliteTable("subscriptions", {
     .notNull()
     .references(() => users.userId),
   title: text("title").notNull(),
-  /** Minor units. */
+  /** Recurring cost in minor units. */
   monthlyAmount: integer("monthly_amount").notNull(),
+  frequency: text("frequency", {
+    enum: ["WEEKLY", "BIWEEKLY", "MONTHLY", "QUARTERLY", "ANNUALLY"],
+  })
+    .notNull()
+    .default("MONTHLY"),
   dueDayOfMonth: integer("due_day_of_month").notNull(),
   templateKey: text("template_key"),
   isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
@@ -85,6 +92,9 @@ export const expenses = sqliteTable("expenses", {
   /** Minor units. */
   amount: integer("amount").notNull(),
   category: text("category").notNull(),
+  isEssential: integer("is_essential", { mode: "boolean" })
+    .notNull()
+    .default(false),
   vaultSource: text("vault_source", {
     enum: ["BILLS_RESERVE", "SAVINGS", "SAFE_TO_SPEND"],
   })

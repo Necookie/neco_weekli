@@ -16,12 +16,15 @@ import {
 } from "./dates.ts";
 import type { Money } from "./money.ts";
 import { clampMin } from "./money.ts";
+import type { RecurrenceFrequency } from "./runway.ts";
 
 export interface Bill {
   id: string;
   title: string;
-  /** Monthly cost in minor units. */
+  /** Recurring cost in minor units. */
   monthlyAmount: Money;
+  /** Optional frequency cadence (defaults to MONTHLY). */
+  frequency?: RecurrenceFrequency;
   /** Day of month the bill is due (1–31; clamps to month length). */
   dueDayOfMonth: number;
 }
