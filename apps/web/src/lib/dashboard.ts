@@ -8,6 +8,9 @@
 
 import {
   addDays,
+  calculateBaselineBurn,
+  calculateRunway,
+  calculateTimeImpact,
   computeSplit,
   dailySafeCap,
   dangerDays,
@@ -15,12 +18,13 @@ import {
   DAY_LABEL_SHORT,
   formatMoney,
   getWeekday,
+  normalizeToWeekly,
   toMinor,
   WEEKDAY_ORDER,
   type Weekday,
 } from "@neco/core";
 import { LOCALE } from "./seed.ts";
-import type { AppState } from "./types.ts";
+import { ESSENTIAL_CATEGORIES, type AppState } from "./types.ts";
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
@@ -82,7 +86,7 @@ function makeFmt(currency: string): (m: number) => string {
  */
 export function computeDashboard(state: AppState, now: Date = new Date()) {
   const { settings, bills, accruals, expenses, savings, contributions } = state;
-  const { income, savingsPct, payday, weekStart, currency } = settings;
+  const { income, savingsPct, payday, weekStart, currency, essentialWeeklyBaselineMinor } = settings;
 
   const split = computeSplit({ income, bills, accruals, savingsPct, today: now, payday });
 
@@ -97,15 +101,42 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
 
   const danger = dangerDays(bills, accruals, { today: now, payday });
 
+  // ─── Runway & Baseline Burn Engine ──────────────────────────────────────────
+  const essentialExpenseWeekly = expenses.reduce((sum, e) => {
+    const isEssential = e.isEssential ?? ESSENTIAL_CATEGORIES.has(e.category);
+    return isEssential ? sum + toMinor(e.amountMajor) : sum;
+  }, 0);
+
+  const baselineBurn = calculateBaselineBurn({
+    bills,
+    essentialExpenseWeekly,
+    baselineFloorWeekly: essentialWeeklyBaselineMinor,
+  });
+
+  // Accessible liquid pool: Liquid savings + Remaining safe-to-spend this cycle
+  const liquidSavings = savings.isLiquid !== false ? savings.balanceMinor : 0;
+  const liquidPool = liquidSavings + Math.max(0, cap.remaining);
+
+  const runway = calculateRunway({
+    liquidPoolMinor: liquidPool,
+    weeklyBurn: baselineBurn.totalWeekly,
+  });
+
   const accrualMap = new Map(accruals.map((a) => [a.billId, a.accrued]));
-  const billProgress = bills.map((b) => ({
-    ...b,
-    accrued: Math.min(b.monthlyAmount, accrualMap.get(b.id) ?? 0),
-    pct: Math.min(
-      100,
-      Math.round(((accrualMap.get(b.id) ?? 0) / b.monthlyAmount) * 100),
-    ),
-  }));
+  const billProgress = bills.map((b) => {
+    const frequency = b.frequency ?? "MONTHLY";
+    const weeklyBurn = normalizeToWeekly(b.monthlyAmount, frequency);
+    return {
+      ...b,
+      frequency,
+      weeklyBurn,
+      accrued: Math.min(b.monthlyAmount, accrualMap.get(b.id) ?? 0),
+      pct: Math.min(
+        100,
+        Math.round(((accrualMap.get(b.id) ?? 0) / b.monthlyAmount) * 100),
+      ),
+    };
+  });
 
   // Per-day spend for the week bar chart.
   const tIdx = todayIndex(now);
@@ -119,18 +150,34 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
   }));
   const maxDay = Math.max(1, ...perDay.map((d) => d.minor));
 
-  // Activity — most recent first. Cards slice to what they need.
+  // Activity — annotated with real-time Time Impact consequence.
   const activity = [...expenses]
     .sort((a, b) => b.dayIndex - a.dayIndex || b.id.localeCompare(a.id))
-    .map((e) => ({
-      id: e.id,
-      title: e.title,
-      category: e.category,
-      minor: toMinor(e.amountMajor),
-      dayLabel: DAY_LABEL_SHORT[e.dayIndex] ?? "",
-      dayFullLabel: DAY_LABEL_FULL[e.dayIndex] ?? "",
-      dayIndex: e.dayIndex,
-    }));
+    .map((e) => {
+      const isEssential = e.isEssential ?? ESSENTIAL_CATEGORIES.has(e.category);
+      const minor = toMinor(e.amountMajor);
+      const timeImpact = calculateTimeImpact(-minor, baselineBurn.totalDaily, {
+        isEssential,
+      });
+
+      return {
+        id: e.id,
+        title: e.title,
+        category: e.category,
+        isEssential,
+        minor,
+        timeImpact,
+        dayLabel: DAY_LABEL_SHORT[e.dayIndex] ?? "",
+        dayFullLabel: DAY_LABEL_FULL[e.dayIndex] ?? "",
+        dayIndex: e.dayIndex,
+      };
+    });
+
+  // Savings contributions annotated with time impact (positive runway addition)
+  const annotatedContributions = contributions.map((c) => ({
+    ...c,
+    timeImpact: calculateTimeImpact(c.amountMinor, baselineBurn.totalDaily),
+  }));
 
   const savingsPctDone =
     savings.goalMinor > 0
@@ -148,12 +195,16 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
     spentThisWeek,
     danger,
     billProgress,
+    baselineBurn,
+    liquidPool,
+    runway,
     weekSpend: { perDay, maxDay },
     activity,
     savings: { ...savings, pct: savingsPctDone },
-    contributions,
+    contributions: annotatedContributions,
     fmt: makeFmt(currency),
   };
 }
 
 export type Dashboard = ReturnType<typeof computeDashboard>;
+
