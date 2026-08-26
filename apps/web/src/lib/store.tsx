@@ -1,6 +1,6 @@
 "use client";
 
-import { type Bill, toMinor } from "@neco/core";
+import { type Bill, type RecurrenceFrequency, toMinor } from "@neco/core";
 import {
   createContext,
   useCallback,
@@ -23,12 +23,14 @@ type AddExpenseInput = {
   category: Category;
   amountMajor: number;
   dayIndex: number;
+  isEssential?: boolean;
 };
 
 type AddBillInput = {
   title: string;
   monthlyAmountMajor: number;
   dueDayOfMonth: number;
+  frequency?: RecurrenceFrequency;
 };
 
 // ─── Context shape ────────────────────────────────────────────────────────────
@@ -94,12 +96,12 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addExpense = useCallback(
-    ({ title, category, amountMajor, dayIndex }: AddExpenseInput) => {
+    ({ title, category, amountMajor, dayIndex, isEssential }: AddExpenseInput) => {
       setState((s) => ({
         ...s,
         expenses: [
           ...s.expenses,
-          { id: nextId("e"), title, category, amountMajor, dayIndex },
+          { id: nextId("e"), title, category, amountMajor, dayIndex, isEssential },
         ],
       }));
       notify(`Logged ${title}`);
@@ -108,9 +110,15 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   );
 
   const addBill = useCallback(
-    ({ title, monthlyAmountMajor, dueDayOfMonth }: AddBillInput) => {
+    ({ title, monthlyAmountMajor, dueDayOfMonth, frequency = "MONTHLY" }: AddBillInput) => {
       const id = nextId("b");
-      const bill: Bill = { id, title, monthlyAmount: toMinor(monthlyAmountMajor), dueDayOfMonth };
+      const bill: Bill = {
+        id,
+        title,
+        monthlyAmount: toMinor(monthlyAmountMajor),
+        frequency,
+        dueDayOfMonth,
+      };
       setState((s) => ({
         ...s,
         bills: [...s.bills, bill],
