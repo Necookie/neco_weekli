@@ -1,5 +1,6 @@
 "use client";
 
+import { useClerk, useUser } from "@clerk/nextjs";
 import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
 import { Database, RotateCcw, ShieldCheck, Sparkles, User } from "lucide-react";
 import Link from "next/link";
@@ -9,16 +10,34 @@ import { PageHeading } from "@/components/page-heading";
 import { useAppStore } from "@/lib/store";
 
 export function SettingsView() {
+  const { user: clerkUser } = useUser();
+  const { signOut: clerkSignOut } = useClerk();
+
   const {
     state,
-    user,
+    user: storeUser,
     openAuthModal,
-    signOut,
+    signOut: storeSignOut,
     updateSettings,
     loadDemoData,
     resetDemo,
     notify,
   } = useAppStore();
+
+  const user = clerkUser
+    ? {
+        id: clerkUser.id,
+        name: clerkUser.fullName || clerkUser.firstName || "User",
+        email: clerkUser.primaryEmailAddress?.emailAddress || "",
+      }
+    : storeUser;
+
+  async function handleSignOut() {
+    if (clerkUser) {
+      await clerkSignOut();
+    }
+    storeSignOut();
+  }
 
   const [income, setIncome] = useState(String(toMajor(state.settings.income)));
   const [savingsPct, setSavingsPct] = useState(String(Math.round(state.settings.savingsPct * 100)));
@@ -104,7 +123,7 @@ export function SettingsView() {
               {user ? (
                 <button
                   type="button"
-                  onClick={signOut}
+                  onClick={handleSignOut}
                   className="rounded-xl bg-canvas px-3.5 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
                 >
                   Sign Out

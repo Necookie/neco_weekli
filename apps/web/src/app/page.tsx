@@ -1,5 +1,6 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { ActivityCard } from "@/components/dashboard/activity-card";
@@ -12,9 +13,10 @@ import { WeekOverview } from "@/components/dashboard/week-overview";
 import { useAppStore } from "@/lib/store";
 
 export default function Home() {
+  const { user: clerkUser } = useUser();
   const { state, user, dashboard: d } = useAppStore();
 
-  const userName = user?.name || "Neco";
+  const userName = clerkUser?.firstName || clerkUser?.fullName || user?.name || "Neco";
 
   return (
     <>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AuthModal } from "@/components/auth/auth-modal";
@@ -12,7 +13,16 @@ import { Wordmark } from "@/components/ui/wordmark";
 import { useAppStore } from "@/lib/store";
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { user, openAuthModal } = useAppStore();
+  const { user: storeUser, openAuthModal } = useAppStore();
+  const { user: clerkUser } = useUser();
+
+  const user = clerkUser
+    ? {
+        id: clerkUser.id,
+        name: clerkUser.fullName || clerkUser.firstName || "User",
+        email: clerkUser.primaryEmailAddress?.emailAddress || "",
+      }
+    : storeUser;
 
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : "N";
 
