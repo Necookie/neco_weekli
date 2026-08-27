@@ -1,14 +1,21 @@
-import { Show, SignInButton, UserButton } from "@clerk/nextjs";
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AuthModal } from "@/components/auth/auth-modal";
 import { LogExpenseModal } from "@/components/dashboard/log-expense-modal";
 import { BottomNav } from "@/components/nav/bottom-nav";
 import { SidebarLogExpenseButton } from "@/components/nav/log-expense-button";
 import { SidebarNav } from "@/components/nav/sidebar-nav";
 import { Toast } from "@/components/ui/toast";
 import { Wordmark } from "@/components/ui/wordmark";
+import { useAppStore } from "@/lib/store";
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { user, openAuthModal } = useAppStore();
+
+  const initial = user?.name ? user.name.charAt(0).toUpperCase() : "N";
+
   return (
     <div className="min-h-dvh lg:flex">
       {/* Desktop sidebar */}
@@ -23,32 +30,28 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex flex-col gap-4">
           <SidebarLogExpenseButton />
 
-          <Show when="signed-in">
-            <div className="flex items-center gap-2.5 rounded-xl border border-black/5 bg-canvas-soft/60 p-2">
-              <UserButton
-                appearance={{
-                  elements: {
-                    userButtonAvatarBox: "size-8",
-                  },
-                }}
-              />
+          {user ? (
+            <Link
+              href="/settings"
+              className="flex items-center gap-2.5 rounded-xl border border-black/5 bg-canvas-soft/60 p-2.5 transition hover:bg-canvas-soft"
+            >
+              <span className="grid size-8 place-items-center rounded-full bg-ink text-xs font-bold text-primary">
+                {initial}
+              </span>
               <div className="min-w-0 text-xs leading-tight">
-                <p className="truncate font-semibold text-ink">Account</p>
-                <p className="text-[11px] text-mute">Synced with Clerk</p>
+                <p className="truncate font-semibold text-ink">{user.name}</p>
+                <p className="truncate text-[11px] text-mute">{user.email}</p>
               </div>
-            </div>
-          </Show>
-
-          <Show when="signed-out">
-            <SignInButton mode="modal">
-              <button
-                type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-xs font-bold text-primary transition hover:bg-black/90 active:scale-[0.98]"
-              >
-                Sign in / Register
-              </button>
-            </SignInButton>
-          </Show>
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={openAuthModal}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-xs font-bold text-primary transition hover:bg-black/90 active:scale-[0.98]"
+            >
+              Sign In / Register
+            </button>
+          )}
         </div>
       </aside>
 
@@ -58,25 +61,23 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="flex items-center justify-between px-4 py-3 lg:hidden">
           <Wordmark />
           <div className="flex items-center gap-2">
-            <Show when="signed-in">
-              <UserButton
-                appearance={{
-                  elements: {
-                    userButtonAvatarBox: "size-8",
-                  },
-                }}
-              />
-            </Show>
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <button
-                  type="button"
-                  className="rounded-full bg-ink px-3 py-1 text-xs font-bold text-primary"
-                >
-                  Sign in
-                </button>
-              </SignInButton>
-            </Show>
+            {user ? (
+              <Link
+                href="/settings"
+                aria-label="Settings"
+                className="grid size-9 place-items-center rounded-full bg-ink text-sm font-bold text-primary"
+              >
+                {initial}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={openAuthModal}
+                className="rounded-full bg-ink px-3 py-1 text-xs font-bold text-primary"
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </header>
 
@@ -88,6 +89,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <BottomNav />
       <Toast />
       <LogExpenseModal />
+      <AuthModal />
     </div>
   );
 }

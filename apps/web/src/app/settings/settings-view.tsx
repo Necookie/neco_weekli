@@ -1,8 +1,7 @@
 "use client";
 
-import { Show, SignInButton, useClerk, useUser } from "@clerk/nextjs";
 import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
-import { User } from "lucide-react";
+import { Database, RotateCcw, ShieldCheck, Sparkles, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Field, inputCls } from "@/components/ui/field";
@@ -10,9 +9,17 @@ import { PageHeading } from "@/components/page-heading";
 import { useAppStore } from "@/lib/store";
 
 export function SettingsView() {
-  const { user, isLoaded } = useUser();
-  const { signOut, openUserProfile } = useClerk();
-  const { state, updateSettings, resetDemo, notify } = useAppStore();
+  const {
+    state,
+    user,
+    openAuthModal,
+    signOut,
+    updateSettings,
+    loadDemoData,
+    resetDemo,
+    notify,
+  } = useAppStore();
+
   const [income, setIncome] = useState(String(toMajor(state.settings.income)));
   const [savingsPct, setSavingsPct] = useState(String(Math.round(state.settings.savingsPct * 100)));
   const [essentialBaseline, setEssentialBaseline] = useState(
@@ -24,8 +31,7 @@ export function SettingsView() {
   const [billReminders, setBillReminders] = useState(state.settings.billReminders);
   const [rolloverEnabled, setRolloverEnabled] = useState(state.settings.rolloverEnabled);
 
-  // Re-sync the staged form whenever the underlying settings change from
-  // outside this form (e.g. Sign out resetting to defaults).
+  // Re-sync the staged form whenever settings change
   useEffect(() => {
     setIncome(String(toMajor(state.settings.income)));
     setSavingsPct(String(Math.round(state.settings.savingsPct * 100)));
@@ -60,73 +66,58 @@ export function SettingsView() {
     notify("Settings saved");
   }
 
-  function handleReset() {
-    resetDemo();
-  }
-
   return (
     <>
       <PageHeading title="Settings" subtitle="Your weekly plan and preferences" />
 
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
-        {/* Account & Authentication */}
+        {/* Account & Authentication Card */}
         <section className="col-span-full rounded-xl bg-canvas p-5 lg:p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="grid size-10 place-items-center rounded-xl bg-primary/20 text-ink">
-                <User className="size-5 text-ink-deep" />
+                <ShieldCheck className="size-5 text-ink-deep" />
               </span>
               <div>
-                <h2 className="text-sm font-semibold text-ink">Account &amp; Security</h2>
-                <Show when="signed-in">
+                <h2 className="text-sm font-semibold text-ink">Account &amp; Profile</h2>
+                {user ? (
                   <p className="text-xs text-mute">
-                    Signed in as{" "}
-                    <strong className="text-ink">
-                      {user?.primaryEmailAddress?.emailAddress ?? user?.fullName ?? "User"}
-                    </strong>
+                    Signed in as <strong className="text-ink">{user.name}</strong> ({user.email})
                   </p>
-                </Show>
-                <Show when="signed-out">
+                ) : (
                   <p className="text-xs text-mute">
-                    Running in local demo mode. Sign in with Clerk to sync across devices.
+                    Running in local plan mode. Sign in or register to secure your account.
                   </p>
-                </Show>
+                )}
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href="/onboarding"
-                className="rounded-xl border border-black/10 bg-canvas-soft px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-black/10 active:scale-[0.98]"
+                className="flex items-center gap-1.5 rounded-xl border border-black/10 bg-canvas-soft px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-black/10 active:scale-[0.98]"
               >
-                Recalibrate Plan (Wizard)
+                <Sparkles className="size-3.5" />
+                <span>Replay Onboarding Wizard</span>
               </Link>
-              <Show when="signed-in">
+
+              {user ? (
                 <button
                   type="button"
-                  onClick={() => openUserProfile()}
-                  className="rounded-xl bg-canvas-soft px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-black/10 active:scale-[0.98]"
-                >
-                  Manage Account
-                </button>
-                <button
-                  type="button"
-                  onClick={() => signOut()}
+                  onClick={signOut}
                   className="rounded-xl bg-canvas px-3.5 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
                 >
                   Sign Out
                 </button>
-              </Show>
-              <Show when="signed-out">
-                <SignInButton mode="modal">
-                  <button
-                    type="button"
-                    className="rounded-xl bg-primary px-4 py-2 font-display text-xs font-extrabold text-on-primary transition hover:bg-primary-active active:scale-[0.98]"
-                  >
-                    Sign In with Clerk
-                  </button>
-                </SignInButton>
-              </Show>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openAuthModal}
+                  className="rounded-xl bg-primary px-4 py-2 font-display text-xs font-extrabold text-on-primary transition hover:bg-primary-active active:scale-[0.98]"
+                >
+                  Sign In / Register
+                </button>
+              )}
             </div>
           </div>
         </section>
@@ -218,7 +209,7 @@ export function SettingsView() {
           </div>
         </section>
 
-        {/* Preferences */}
+        {/* Preferences & Data Management */}
         <section className="flex flex-col gap-4 rounded-xl bg-canvas p-5 lg:p-6">
           <h2 className="text-sm font-semibold text-mute">Preferences</h2>
 
@@ -259,21 +250,40 @@ export function SettingsView() {
               className="size-5 accent-primary"
             />
           </label>
+
+          {/* Dataset Tools */}
+          <div className="mt-2 rounded-xl border border-black/5 bg-canvas-soft/50 p-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-mute">
+              Dataset Management
+            </h3>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={loadDemoData}
+                className="flex items-center gap-1.5 rounded-xl border border-black/10 bg-canvas px-3 py-2 text-xs font-semibold text-ink transition hover:bg-black/5 active:scale-[0.98]"
+              >
+                <Database className="size-3.5 text-mute" />
+                <span>Load Sample Playground Data</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={resetDemo}
+                className="flex items-center gap-1.5 rounded-xl bg-canvas px-3 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
+              >
+                <RotateCcw className="size-3.5" />
+                <span>Clear All (Clean Slate)</span>
+              </button>
+            </div>
+          </div>
         </section>
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
         <button
           type="button"
-          onClick={handleReset}
-          className="rounded-xl bg-canvas px-6 py-3 text-center text-sm font-semibold text-ink ring-1 ring-inset ring-ink transition active:scale-[0.99]"
-        >
-          Reset data
-        </button>
-        <button
-          type="button"
           onClick={handleSave}
-          className="rounded-xl bg-primary px-6 py-3 text-center font-display text-sm font-extrabold text-on-primary transition active:scale-[0.99]"
+          className="rounded-xl bg-primary px-8 py-3.5 text-center font-display text-sm font-extrabold text-on-primary transition hover:bg-primary-active active:scale-[0.99]"
         >
           Save changes
         </button>
