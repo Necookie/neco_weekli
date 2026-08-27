@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LogExpenseModal } from "@/components/dashboard/log-expense-modal";
@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex flex-col gap-4">
           <SidebarLogExpenseButton />
 
-          <SignedIn>
+          <Show when="signed-in">
             <div className="flex items-center gap-2.5 rounded-xl border border-black/5 bg-canvas-soft/60 p-2">
               <UserButton
                 appearance={{
@@ -37,9 +37,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <p className="text-[11px] text-mute">Synced with Clerk</p>
               </div>
             </div>
-          </SignedIn>
+          </Show>
 
-          <SignedOut>
+          <Show when="signed-out">
             <SignInButton mode="modal">
               <button
                 type="button"
@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 Sign in / Register
               </button>
             </SignInButton>
-          </SignedOut>
+          </Show>
         </div>
       </aside>
 
@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="flex items-center justify-between px-4 py-3 lg:hidden">
           <Wordmark />
           <div className="flex items-center gap-2">
-            <SignedIn>
+            <Show when="signed-in">
               <UserButton
                 appearance={{
                   elements: {
@@ -66,8 +66,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                   },
                 }}
               />
-            </SignedIn>
-            <SignedOut>
+            </Show>
+            <Show when="signed-out">
               <SignInButton mode="modal">
                 <button
                   type="button"
@@ -76,7 +76,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   Sign in
                 </button>
               </SignInButton>
-            </SignedOut>
+            </Show>
           </div>
         </header>
 
@@ -84,6 +84,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+
 
 
       <BottomNav />

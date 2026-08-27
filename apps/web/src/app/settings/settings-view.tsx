@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, useClerk, useUser } from "@clerk/nextjs";
+import { Show, SignInButton, useClerk, useUser } from "@clerk/nextjs";
 import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
 import { ShieldCheck, User } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -22,7 +22,6 @@ export function SettingsView() {
   const [currency, setCurrency] = useState(state.settings.currency);
   const [billReminders, setBillReminders] = useState(state.settings.billReminders);
   const [rolloverEnabled, setRolloverEnabled] = useState(state.settings.rolloverEnabled);
-
 
   // Re-sync the staged form whenever the underlying settings change from
   // outside this form (e.g. Sign out resetting to defaults).
@@ -78,24 +77,24 @@ export function SettingsView() {
               </span>
               <div>
                 <h2 className="text-sm font-semibold text-ink">Account &amp; Security</h2>
-                <SignedIn>
+                <Show when="signed-in">
                   <p className="text-xs text-mute">
                     Signed in as{" "}
                     <strong className="text-ink">
                       {user?.primaryEmailAddress?.emailAddress ?? user?.fullName ?? "User"}
                     </strong>
                   </p>
-                </SignedIn>
-                <SignedOut>
+                </Show>
+                <Show when="signed-out">
                   <p className="text-xs text-mute">
                     Running in local demo mode. Sign in with Clerk to sync across devices.
                   </p>
-                </SignedOut>
+                </Show>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <SignedIn>
+              <Show when="signed-in">
                 <button
                   type="button"
                   onClick={() => openUserProfile()}
@@ -110,8 +109,8 @@ export function SettingsView() {
                 >
                   Sign Out
                 </button>
-              </SignedIn>
-              <SignedOut>
+              </Show>
+              <Show when="signed-out">
                 <SignInButton mode="modal">
                   <button
                     type="button"
@@ -120,10 +119,11 @@ export function SettingsView() {
                     Sign In with Clerk
                   </button>
                 </SignInButton>
-              </SignedOut>
+              </Show>
             </div>
           </div>
         </section>
+
 
         {/* Weekly plan */}
         <section className="rounded-xl bg-canvas p-5 lg:p-6">
