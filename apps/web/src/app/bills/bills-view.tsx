@@ -1,5 +1,6 @@
 "use client";
 
+import { FREQUENCY_LABEL } from "@neco/core";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { PageHeading } from "@/components/page-heading";
@@ -14,16 +15,16 @@ export function BillsView() {
     () => new Set(d.danger.map((x) => x.billId)),
     [d.danger],
   );
-  const totalMonthly = useMemo(
-    () => d.billProgress.reduce((s, b) => s + b.monthlyAmount, 0),
+  const totalWeeklyBurn = useMemo(
+    () => d.billProgress.reduce((s, b) => s + b.weeklyBurn, 0),
     [d.billProgress],
   );
 
   return (
     <>
       <PageHeading
-        title="Bills"
-        subtitle={`${d.billProgress.length} subscriptions · ${d.fmt(totalMonthly)}/mo`}
+        title="Bills & Subscriptions"
+        subtitle={`${d.billProgress.length} recurring commitments · ${d.fmt(totalWeeklyBurn)}/wk normalized burn`}
         action={
           <button
             type="button"
@@ -39,22 +40,29 @@ export function BillsView() {
       <div className="flex flex-col gap-3 lg:gap-4">
         {d.billProgress.map((b) => {
           const risk = atRisk.has(b.id);
+          const freqLabel = FREQUENCY_LABEL[b.frequency ?? "MONTHLY"];
           return (
             <div key={b.id} className="rounded-xl bg-canvas p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-semibold text-ink">{b.title}</p>
-                  <p className="text-xs text-mute">
-                    Due on the {ordinal(b.dueDayOfMonth)}
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-ink">{b.title}</p>
+                    <span className="rounded bg-canvas-soft px-2 py-0.5 text-[11px] font-medium text-body">
+                      {freqLabel}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-mute">
+                    Due on the {ordinal(b.dueDayOfMonth)} · <span className="font-medium text-ink-deep">{d.fmt(b.weeklyBurn)}/wk</span>
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold tabular-nums text-ink">
                     {d.fmt(b.monthlyAmount)}
                   </p>
-                  <p className="text-xs text-mute">per month</p>
+                  <p className="text-xs text-mute">{freqLabel.toLowerCase()}</p>
                 </div>
               </div>
+
 
               <div className="mt-3 flex items-center justify-between text-xs">
                 <span

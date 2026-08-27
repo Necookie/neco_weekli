@@ -3,27 +3,42 @@
 import { useState } from "react";
 import { DAY_LABEL_SHORT } from "@neco/core";
 import { Modal, modalInputCls } from "@/components/ui";
-import { CATEGORIES, type Category } from "@/lib/types";
+import { CATEGORIES, ESSENTIAL_CATEGORIES, type Category } from "@/lib/types";
 import { useAppStore } from "@/lib/store";
 
 export function LogExpenseModal() {
   const { isLogExpenseOpen, closeLogExpense, addExpense } = useAppStore();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<Category>(CATEGORIES[0]!);
+  const [isEssential, setIsEssential] = useState(
+    ESSENTIAL_CATEGORIES.has(CATEGORIES[0]!),
+  );
   const [amount, setAmount] = useState("");
   const [dayIndex, setDayIndex] = useState((new Date().getDay() + 6) % 7);
 
   function reset() {
     setTitle("");
     setCategory(CATEGORIES[0]!);
+    setIsEssential(ESSENTIAL_CATEGORIES.has(CATEGORIES[0]!));
     setAmount("");
+  }
+
+  function handleCategoryChange(newCat: Category) {
+    setCategory(newCat);
+    setIsEssential(ESSENTIAL_CATEGORIES.has(newCat));
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const amountMajor = Number(amount);
     if (!title.trim() || !Number.isFinite(amountMajor) || amountMajor <= 0) return;
-    addExpense({ title: title.trim(), category, amountMajor, dayIndex });
+    addExpense({
+      title: title.trim(),
+      category,
+      amountMajor,
+      dayIndex,
+      isEssential,
+    });
     reset();
     closeLogExpense();
   }
@@ -75,7 +90,7 @@ export function LogExpenseModal() {
           <span className="mb-1.5 block text-sm font-semibold text-ink">Category</span>
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value as Category)}
+            onChange={(e) => handleCategoryChange(e.target.value as Category)}
             className={modalInputCls}
           >
             {CATEGORIES.map((c) => (
@@ -84,6 +99,19 @@ export function LogExpenseModal() {
               </option>
             ))}
           </select>
+        </label>
+
+        <label className="flex items-center justify-between gap-3 rounded-md border border-ink/10 bg-canvas-soft/50 px-3.5 py-2.5">
+          <div className="text-xs">
+            <span className="font-semibold text-ink">Essential survival expense</span>
+            <p className="text-[11px] text-mute">Counts toward baseline burn for runway.</p>
+          </div>
+          <input
+            type="checkbox"
+            checked={isEssential}
+            onChange={(e) => setIsEssential(e.target.checked)}
+            className="size-4 accent-primary"
+          />
         </label>
 
         <label className="block">

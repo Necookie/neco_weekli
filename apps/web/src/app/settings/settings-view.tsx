@@ -10,6 +10,9 @@ export function SettingsView() {
   const { state, updateSettings, resetDemo, notify } = useAppStore();
   const [income, setIncome] = useState(String(toMajor(state.settings.income)));
   const [savingsPct, setSavingsPct] = useState(String(Math.round(state.settings.savingsPct * 100)));
+  const [essentialBaseline, setEssentialBaseline] = useState(
+    String(toMajor(state.settings.essentialWeeklyBaselineMinor ?? 0)),
+  );
   const [payday, setPayday] = useState<Weekday>(state.settings.payday);
   const [weekStart, setWeekStart] = useState<Weekday>(state.settings.weekStart);
   const [currency, setCurrency] = useState(state.settings.currency);
@@ -21,6 +24,7 @@ export function SettingsView() {
   useEffect(() => {
     setIncome(String(toMajor(state.settings.income)));
     setSavingsPct(String(Math.round(state.settings.savingsPct * 100)));
+    setEssentialBaseline(String(toMajor(state.settings.essentialWeeklyBaselineMinor ?? 0)));
     setPayday(state.settings.payday);
     setWeekStart(state.settings.weekStart);
     setCurrency(state.settings.currency);
@@ -31,12 +35,17 @@ export function SettingsView() {
   function handleSave() {
     const incomeMajor = Number(income);
     const pct = Number(savingsPct);
+    const baselineMajor = Number(essentialBaseline);
     updateSettings({
       income:
         Number.isFinite(incomeMajor) && incomeMajor > 0
           ? toMinor(incomeMajor)
           : state.settings.income,
       savingsPct: Number.isFinite(pct) ? Math.min(100, Math.max(0, pct)) / 100 : state.settings.savingsPct,
+      essentialWeeklyBaselineMinor:
+        Number.isFinite(baselineMajor) && baselineMajor >= 0
+          ? toMinor(baselineMajor)
+          : state.settings.essentialWeeklyBaselineMinor,
       payday,
       weekStart,
       currency,
@@ -106,6 +115,25 @@ export function SettingsView() {
                 <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-mute">
                   %
                 </span>
+              </div>
+            </Field>
+
+            <Field
+              label="Essential baseline floor"
+              hint="Minimum weekly safety buffer for commute, groceries & survival."
+            >
+              <div className="relative">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-mute">
+                  ₱
+                </span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  value={essentialBaseline}
+                  onChange={(e) => setEssentialBaseline(e.target.value)}
+                  className={`${inputCls} pl-8`}
+                />
               </div>
             </Field>
 
