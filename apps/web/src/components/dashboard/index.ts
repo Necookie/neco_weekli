@@ -8,5 +8,5 @@ export { LogExpenseModal } from "./log-expense-modal";
 export { SavingsCard } from "./savings-card";
 export { VaultSplit } from "./vault-split";
 export { WeekOverview } from "./week-overview";
-export { RunwaySlidersCard } from "./runway-sliders-card";
+
 
