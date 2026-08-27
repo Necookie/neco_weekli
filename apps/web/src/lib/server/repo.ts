@@ -340,6 +340,22 @@ export async function persistMoney(
   });
 }
 
+/**
+ * Permanently erases every row this user owns — subscriptions, expenses,
+ * ledger entries, income events, and the `users` row itself. Called both
+ * from the in-app "Delete Account" action and from the Clerk `user.deleted`
+ * webhook, so an account removed either way (in-app, or directly through
+ * Clerk's own account portal/dashboard) never leaves orphaned Turso rows
+ * behind. Idempotent — safe to call for a userId with no rows.
+ */
+export async function deleteUser(userId: string): Promise<void> {
+  await db.delete(schema.ledger).where(eq(schema.ledger.userId, userId));
+  await db.delete(schema.expenses).where(eq(schema.expenses.userId, userId));
+  await db.delete(schema.subscriptions).where(eq(schema.subscriptions.userId, userId));
+  await db.delete(schema.incomeEvents).where(eq(schema.incomeEvents.userId, userId));
+  await db.delete(schema.users).where(eq(schema.users.userId, userId));
+}
+
 export async function persistSettings(
   userId: string,
   partial: Partial<Settings>,
