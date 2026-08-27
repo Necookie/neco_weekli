@@ -7,7 +7,7 @@
  * write another's data even if a caller tried to pass a different id.
  */
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import type { RecurrenceFrequency } from "@neco/core";
 import * as repo from "./repo.ts";
 import type { AppState, Category, OnboardingSetupData, Settings } from "../types.ts";
@@ -57,4 +57,19 @@ export async function persistMoneyAction(amountMajor: number): Promise<void> {
 export async function persistSettingsAction(partial: Partial<Settings>): Promise<void> {
   const userId = await requireUserId();
   await repo.persistSettings(userId, partial);
+}
+
+/**
+ * Permanently deletes the signed-in user's account: every Turso row they
+ * own, then the Clerk user itself. This is the in-app "Delete Account"
+ * path — deleting straight from Clerk's own account portal instead skips
+ * this action entirely, which is why the `user.deleted` webhook
+ * (app/api/webhooks/clerk/route.ts) does the same Turso cleanup from the
+ * other direction.
+ */
+export async function deleteAccountAction(): Promise<void> {
+  const userId = await requireUserId();
+  await repo.deleteUser(userId);
+  const client = await clerkClient();
+  await client.users.deleteUser(userId);
 }
