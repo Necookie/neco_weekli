@@ -50,10 +50,11 @@ pnpm db:push       # push schema to Turso
 ## Status
 
 - [x] Monorepo + tooling
-- [x] Domain core: money, dates, **due-date accrual engine**, ledger — fully tested
-- [x] Drizzle schema (users, income_events, subscriptions, ledger, expenses)
-- [x] Next.js mobile-first PWA shell with a live Safe-to-Spend dashboard (demo data)
+- [x] Domain core: money, dates, **due-date accrual engine**, **Runway & Accrual Engine**, ledger — fully tested
+- [x] Drizzle schema (users, income_events, subscriptions with multi-frequency cadences, ledger, expenses)
+- [x] Next.js mobile-first PWA shell with live Runway meter, Safe-to-Spend dashboard, and dynamic Time Impact tags
 - [ ] Auth (Better Auth) + real user data
 - [ ] Wire the dashboard to Turso via server actions
 - [ ] Expense logging, bill reminders, rollover
 - [ ] Phase B: Expo app reusing `@neco/core`
+
