@@ -7,12 +7,21 @@
  */
 
 import { toMinor } from "@neco/core";
-import type { AppState, Settings } from "./types.ts";
+import type { AppState, Settings, TargetSliders } from "./types.ts";
 
 // ─── Env-driven locale / currency ────────────────────────────────────────────
 
 export const CURRENCY = process.env.NEXT_PUBLIC_DEFAULT_CURRENCY ?? "PHP";
 export const LOCALE = process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? "en-PH";
+
+// ─── Default slider targets ──────────────────────────────────────────────────
+
+export const DEFAULT_TARGET_SLIDERS: TargetSliders = {
+  commuteMajor: 350,
+  campusMealsMajor: 500,
+  datesMajor: 400,
+  snacksMajor: 150,
+};
 
 // ─── Default settings ─────────────────────────────────────────────────────────
 
@@ -66,5 +75,7 @@ export const DEFAULT_STATE: AppState = {
     { id: "h3", label: "Payday allocation", when: "Last Mon", amountMinor: toMinor(3000) },
     { id: "h4", label: "Manual top-up", when: "2 weeks ago", amountMinor: toMinor(500) },
   ],
+  targetSliders: DEFAULT_TARGET_SLIDERS,
 };
+
 

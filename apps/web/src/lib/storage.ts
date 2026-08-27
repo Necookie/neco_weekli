@@ -28,6 +28,10 @@ export function loadInitial(): AppState {
       ...DEFAULT_STATE,
       ...parsed,
       settings: { ...DEFAULT_STATE.settings, ...parsed.settings },
+      targetSliders: {
+        ...DEFAULT_STATE.targetSliders,
+        ...(parsed.targetSliders ?? {}),
+      },
     };
     // Prune accruals whose billId has no corresponding bill — they are stale
     // references left over from deleted bills and would grow unboundedly.

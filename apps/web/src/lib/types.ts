@@ -75,6 +75,13 @@ export type SavingsAccount = {
   isLiquid?: boolean;
 };
 
+export type TargetSliders = {
+  commuteMajor: number;
+  campusMealsMajor: number;
+  datesMajor: number;
+  snacksMajor: number;
+};
+
 export type AppState = {
   settings: Settings;
   bills: Bill[];
@@ -82,5 +89,7 @@ export type AppState = {
   expenses: Expense[];
   savings: SavingsAccount;
   contributions: Contribution[];
+  targetSliders: TargetSliders;
 };
+
 

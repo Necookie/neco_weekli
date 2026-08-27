@@ -12,9 +12,9 @@ import {
   type ReactNode,
 } from "react";
 import { computeDashboard, type Dashboard } from "./dashboard.ts";
-import { DEFAULT_STATE } from "./seed.ts";
+import { DEFAULT_STATE, DEFAULT_TARGET_SLIDERS } from "./seed.ts";
 import { loadInitial, nextId, STORAGE_KEY } from "./storage.ts";
-import type { AppState, Category, Settings } from "./types.ts";
+import type { AppState, Category, Settings, TargetSliders } from "./types.ts";
 
 // ─── Input types ─────────────────────────────────────────────────────────────
 
@@ -42,6 +42,8 @@ type Ctx = {
   addBill: (input: AddBillInput) => void;
   addMoney: (amountMajor: number) => void;
   updateSettings: (partial: Partial<Settings>) => void;
+  updateTargetSliders: (partial: Partial<TargetSliders>) => void;
+  resetTargetSliders: () => void;
   resetDemo: () => void;
   isLogExpenseOpen: boolean;
   openLogExpense: () => void;
@@ -49,6 +51,7 @@ type Ctx = {
   toast: string | null;
   notify: (message: string) => void;
 };
+
 
 const AppDataContext = createContext<Ctx | null>(null);
 
@@ -151,6 +154,21 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, settings: { ...s.settings, ...partial } }));
   }, []);
 
+  const updateTargetSliders = useCallback((partial: Partial<TargetSliders>) => {
+    setState((s) => ({
+      ...s,
+      targetSliders: { ...s.targetSliders, ...partial },
+    }));
+  }, []);
+
+  const resetTargetSliders = useCallback(() => {
+    setState((s) => ({
+      ...s,
+      targetSliders: DEFAULT_TARGET_SLIDERS,
+    }));
+    notify("Reset spending targets to defaults");
+  }, [notify]);
+
   const resetDemo = useCallback(() => {
     setState(DEFAULT_STATE);
     if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEY);
@@ -164,6 +182,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     addBill,
     addMoney,
     updateSettings,
+    updateTargetSliders,
+    resetTargetSliders,
     resetDemo,
     isLogExpenseOpen,
     openLogExpense: () => setLogExpenseOpen(true),
@@ -171,6 +191,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     toast,
     notify,
   };
+
 
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }

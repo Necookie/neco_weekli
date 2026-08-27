@@ -4,6 +4,7 @@ import { ActivityCard } from "@/components/dashboard/activity-card";
 import { BillsCard } from "@/components/dashboard/bills-card";
 import { DangerCard } from "@/components/dashboard/danger-card";
 import { HeroCard } from "@/components/dashboard/hero-card";
+import { RunwaySlidersCard } from "@/components/dashboard/runway-sliders-card";
 import { SavingsCard } from "@/components/dashboard/savings-card";
 import { VaultSplit } from "@/components/dashboard/vault-split";
 import { WeekOverview } from "@/components/dashboard/week-overview";
@@ -26,6 +27,7 @@ export default function Home() {
         {/* Main column */}
         <div className="flex flex-col gap-4 lg:col-span-2 lg:gap-6">
           <HeroCard d={d} />
+          <RunwaySlidersCard d={d} />
           <VaultSplit d={d} />
           <WeekOverview d={d} />
           <DangerCard d={d} />
@@ -38,6 +40,7 @@ export default function Home() {
           <ActivityCard d={d} />
         </div>
       </div>
+
 
       <p className="mt-6 px-1 text-center text-xs text-mute">
         Weekli tracks and plans your money — it never holds or moves funds.

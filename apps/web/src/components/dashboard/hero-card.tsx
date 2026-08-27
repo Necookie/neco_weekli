@@ -1,13 +1,14 @@
 import type { Dashboard } from "@/lib/dashboard";
 
 export function HeroCard({ d }: { d: Dashboard }) {
-  const isHealthy = d.runway.health === "HEALTHY";
-  const isCritical = d.runway.health === "CRITICAL";
+  const activeRunway = d.sliderSimulation.simulatedRunway ?? d.runway;
+  const isHealthy = activeRunway.health === "HEALTHY";
+  const isCritical = activeRunway.health === "CRITICAL";
 
   // Target benchmark is 12 weeks (3 months) of runway
-  const runwayPct = d.runway.isIndefinite
+  const runwayPct = activeRunway.isIndefinite
     ? 100
-    : Math.min(100, Math.round((d.runway.weeks / 12) * 100));
+    : Math.min(100, Math.round((activeRunway.weeks / 12) * 100));
 
   return (
     <section className="overflow-hidden rounded-xl bg-ink text-white shadow-sm">
@@ -46,15 +47,17 @@ export function HeroCard({ d }: { d: Dashboard }) {
         </div>
 
         <div className="mt-3 flex flex-wrap items-baseline gap-2.5">
-          <p className="font-display text-[clamp(2.5rem,10vw,4rem)] font-extrabold tabular-nums leading-none tracking-tight text-white">
-            {d.runway.isIndefinite ? "∞" : d.runway.weeks}
+          <p className="font-display text-[clamp(2.5rem,10vw,4rem)] font-extrabold tabular-nums leading-none tracking-tight text-white transition-all duration-300">
+            {activeRunway.isIndefinite ? "∞" : activeRunway.weeks}
           </p>
           <div className="flex flex-col">
             <span className="font-display text-lg font-bold text-primary lg:text-xl">
               Weeks of Runway
             </span>
             <span className="text-xs text-white/50">
-              {d.runway.isIndefinite ? "Indefinite survival" : `≈ ${d.runway.days} days of survival & flexibility`}
+              {activeRunway.isIndefinite
+                ? "Indefinite survival"
+                : `≈ ${activeRunway.days} days of survival & flexibility`}
             </span>
           </div>
         </div>
@@ -66,7 +69,10 @@ export function HeroCard({ d }: { d: Dashboard }) {
               Liquid Pool: <strong className="text-white">{d.fmt(d.liquidPool)}</strong>
             </span>
             <span>
-              Baseline Burn: <strong className="text-white">{d.fmt(d.baselineBurn.totalWeekly)}/wk</strong>
+              Simulated Weekly Burn:{" "}
+              <strong className="text-white">
+                {d.fmt(activeRunway.weeklyBurn)}/wk
+              </strong>
             </span>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">

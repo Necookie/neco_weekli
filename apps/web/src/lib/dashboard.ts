@@ -179,6 +179,36 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
     timeImpact: calculateTimeImpact(c.amountMinor, baselineBurn.totalDaily),
   }));
 
+  // ─── Interactive Slider Simulation Engine ──────────────────────────────────
+  const sliders = state.targetSliders ?? {
+    commuteMajor: 350,
+    campusMealsMajor: 500,
+    datesMajor: 400,
+    snacksMajor: 150,
+  };
+  const totalSlidersSpendMinor = toMinor(
+    sliders.commuteMajor +
+      sliders.campusMealsMajor +
+      sliders.datesMajor +
+      sliders.snacksMajor,
+  );
+  const slidersEssentialMinor = toMinor(
+    sliders.commuteMajor + sliders.campusMealsMajor,
+  );
+  const slidersDiscretionaryMinor = toMinor(
+    sliders.datesMajor + sliders.snacksMajor,
+  );
+
+  // Simulated total weekly burn under these spending targets
+  const simulatedWeeklyBurn = baselineBurn.billsWeekly + totalSlidersSpendMinor;
+  const simulatedRunway = calculateRunway({
+    liquidPoolMinor: liquidPool,
+    weeklyBurn: simulatedWeeklyBurn,
+  });
+
+  // Net weekly build rate / surplus: Safe-to-Spend minus Target Allocations
+  const surplusMinor = split.safeToSpend - totalSlidersSpendMinor;
+
   const savingsPctDone =
     savings.goalMinor > 0
       ? Math.round((savings.balanceMinor / savings.goalMinor) * 100)
@@ -198,6 +228,16 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
     baselineBurn,
     liquidPool,
     runway,
+    sliderSimulation: {
+      sliders,
+      totalSlidersSpendMinor,
+      slidersEssentialMinor,
+      slidersDiscretionaryMinor,
+      surplusMinor,
+      projectedWeeks: simulatedRunway.weeks,
+      projectedDays: simulatedRunway.days,
+      simulatedRunway,
+    },
     weekSpend: { perDay, maxDay },
     activity,
     savings: { ...savings, pct: savingsPctDone },
@@ -207,4 +247,5 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
 }
 
 export type Dashboard = ReturnType<typeof computeDashboard>;
+
 
