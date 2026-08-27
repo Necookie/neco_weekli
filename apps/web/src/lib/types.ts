@@ -83,6 +83,22 @@ export type TargetSliders = {
   snacksMajor: number;
 };
 
+export type OnboardingSetupData = {
+  incomeWeeklyMajor: number;
+  savingsPct: number;
+  payday: Weekday;
+  bills: Array<{
+    id: string;
+    title: string;
+    amountMajor: number;
+    frequency: "WEEKLY" | "BIWEEKLY" | "MONTHLY" | "QUARTERLY" | "ANNUALLY";
+    dueDayOfMonth: number;
+  }>;
+  sliders: TargetSliders;
+  savingsGoalMajor?: number;
+  liquidSavingsMajor?: number;
+};
+
 export type AppState = {
   settings: Settings;
   bills: Bill[];
@@ -92,5 +108,6 @@ export type AppState = {
   contributions: Contribution[];
   targetSliders: TargetSliders;
 };
+
 
 

@@ -32,7 +32,7 @@ import type { TargetSliders } from "@/lib/types";
 
 export function OnboardingWizard() {
   const router = useRouter();
-  const { state, updateSettings, updateTargetSliders, notify } = useAppStore();
+  const { state, applyOnboardingSetup, notify } = useAppStore();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
@@ -125,18 +125,15 @@ export function OnboardingWizard() {
   }
 
   function handleFinish() {
-    // 1. Update settings
-    updateSettings({
-      income: toMinor(weeklyIncome),
+    applyOnboardingSetup({
+      incomeWeeklyMajor: weeklyIncome,
       savingsPct: savingsPct / 100,
       payday,
-      hasCompletedOnboarding: true,
+      bills: selectedBills,
+      sliders,
+      savingsGoalMajor: 30000,
+      liquidSavingsMajor: 5000,
     });
-
-    // 2. Update sliders
-    updateTargetSliders(sliders);
-
-    notify("Welcome to Weekli! Your financial plan is ready.");
     router.push("/");
   }
 

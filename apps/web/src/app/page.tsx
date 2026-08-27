@@ -12,14 +12,16 @@ import { WeekOverview } from "@/components/dashboard/week-overview";
 import { useAppStore } from "@/lib/store";
 
 export default function Home() {
-  const { state, dashboard: d } = useAppStore();
+  const { state, user, dashboard: d } = useAppStore();
+
+  const userName = user?.name || "Neco";
 
   return (
     <>
       {/* Desktop greeting */}
       <div className="mb-6 hidden lg:block">
         <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink">
-          {d.greeting}, Neco
+          {d.greeting}, {userName}
         </h1>
         <p className="mt-1 text-sm text-body">Here&apos;s your week at a glance.</p>
       </div>
