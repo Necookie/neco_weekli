@@ -20,6 +20,18 @@ export const users = sqliteTable("users", {
   paydayWeekday: text("payday_weekday").notNull().default("MONDAY"),
   weekStartWeekday: text("week_start_weekday").notNull().default("MONDAY"),
   currencyCode: text("currency_code").notNull().default("PHP"),
+  hasCompletedOnboarding: integer("has_completed_onboarding", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  billRemindersEnabled: integer("bill_reminders_enabled", { mode: "boolean" })
+    .notNull()
+    .default(true),
+  rolloverEnabled: integer("rollover_enabled", { mode: "boolean" })
+    .notNull()
+    .default(true),
+  /** Minor units. */
+  savingsGoalMinor: integer("savings_goal_minor").notNull().default(0),
+  savingsLabel: text("savings_label").notNull().default("Emergency & Runway Fund"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(current_timestamp)`),
@@ -76,6 +88,8 @@ export const ledger = sqliteTable("ledger", {
     () => subscriptions.subscriptionId,
   ),
   expenseId: text("expense_id"),
+  /** Free-text label shown in the activity/contributions feed (e.g. "Manual top-up"). */
+  note: text("note"),
   occurredAt: text("occurred_at").notNull(),
   /** Idempotency key — unique per user for offline-safe sync. */
   clientGeneratedId: text("client_generated_id").notNull().unique(),
