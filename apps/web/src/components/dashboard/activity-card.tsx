@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TimeImpactBadge } from "@/components/ui";
 import type { Dashboard } from "@/lib/dashboard";
 import { CategoryIcon } from "./category-icon";
 
@@ -21,16 +22,22 @@ export function ActivityCard({ d }: { d: Dashboard }) {
               <p className="truncate text-sm font-semibold text-ink">
                 {a.title}
               </p>
-              <p className="truncate text-xs text-mute">
-                {a.category} · {a.dayLabel}
-              </p>
+              <div className="flex items-center gap-1.5 truncate text-xs text-mute">
+                <span>{a.category}</span>
+                <span>·</span>
+                <span>{a.dayLabel}</span>
+              </div>
             </div>
-            <span className="shrink-0 text-sm font-semibold tabular-nums text-ink">
-              −{d.fmt(a.minor)}
-            </span>
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <span className="text-sm font-semibold tabular-nums text-ink">
+                −{d.fmt(a.minor)}
+              </span>
+              <TimeImpactBadge impact={a.timeImpact} />
+            </div>
           </li>
         ))}
       </ul>
     </section>
   );
 }
+

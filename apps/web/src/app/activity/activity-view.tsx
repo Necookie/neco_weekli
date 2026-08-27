@@ -3,6 +3,7 @@
 import { DAY_LABEL_FULL } from "@neco/core";
 import { CategoryIcon } from "@/components/dashboard/category-icon";
 import { PageHeading } from "@/components/page-heading";
+import { TimeImpactBadge } from "@/components/ui";
 import { type Dashboard } from "@/lib/dashboard";
 import { useAppStore } from "@/lib/store";
 
@@ -43,11 +44,21 @@ export function ActivityView() {
                     <p className="truncate text-sm font-semibold text-ink">
                       {a.title}
                     </p>
-                    <p className="truncate text-xs text-mute">{a.category}</p>
+                    <div className="flex items-center gap-2 text-xs text-mute">
+                      <span>{a.category}</span>
+                      {a.isEssential && (
+                        <span className="rounded bg-black/5 px-1.5 py-0.5 text-[10px] font-medium text-mute">
+                          Essential
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span className="shrink-0 text-sm font-semibold tabular-nums text-ink">
-                    −{d.fmt(a.minor)}
-                  </span>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <span className="text-sm font-semibold tabular-nums text-ink">
+                      −{d.fmt(a.minor)}
+                    </span>
+                    <TimeImpactBadge impact={a.timeImpact} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -57,3 +68,4 @@ export function ActivityView() {
     </>
   );
 }
+
