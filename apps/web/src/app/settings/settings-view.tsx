@@ -11,33 +11,16 @@ import { useAppStore } from "@/lib/store";
 
 export function SettingsView() {
   const { user: clerkUser } = useUser();
-  const { signOut: clerkSignOut } = useClerk();
+  const { signOut: clerkSignOut, openSignIn } = useClerk();
 
-  const {
-    state,
-    user: storeUser,
-    openAuthModal,
-    signOut: storeSignOut,
-    updateSettings,
-    loadDemoData,
-    resetDemo,
-    notify,
-  } = useAppStore();
+  const { state, updateSettings, loadDemoData, resetDemo, notify } = useAppStore();
 
   const user = clerkUser
     ? {
-        id: clerkUser.id,
         name: clerkUser.fullName || clerkUser.firstName || "User",
         email: clerkUser.primaryEmailAddress?.emailAddress || "",
       }
-    : storeUser;
-
-  async function handleSignOut() {
-    if (clerkUser) {
-      await clerkSignOut();
-    }
-    storeSignOut();
-  }
+    : null;
 
   const [income, setIncome] = useState(String(toMajor(state.settings.income)));
   const [savingsPct, setSavingsPct] = useState(String(Math.round(state.settings.savingsPct * 100)));
@@ -123,7 +106,7 @@ export function SettingsView() {
               {user ? (
                 <button
                   type="button"
-                  onClick={handleSignOut}
+                  onClick={() => clerkSignOut()}
                   className="rounded-xl bg-canvas px-3.5 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
                 >
                   Sign Out
@@ -131,7 +114,7 @@ export function SettingsView() {
               ) : (
                 <button
                   type="button"
-                  onClick={openAuthModal}
+                  onClick={() => openSignIn()}
                   className="rounded-xl bg-primary px-4 py-2 font-display text-xs font-extrabold text-on-primary transition hover:bg-primary-active active:scale-[0.98]"
                 >
                   Sign In / Register

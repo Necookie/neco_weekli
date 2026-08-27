@@ -1,28 +1,25 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AuthModal } from "@/components/auth/auth-modal";
 import { LogExpenseModal } from "@/components/dashboard/log-expense-modal";
 import { BottomNav } from "@/components/nav/bottom-nav";
 import { SidebarLogExpenseButton } from "@/components/nav/log-expense-button";
 import { SidebarNav } from "@/components/nav/sidebar-nav";
 import { Toast } from "@/components/ui/toast";
 import { Wordmark } from "@/components/ui/wordmark";
-import { useAppStore } from "@/lib/store";
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { user: storeUser, openAuthModal } = useAppStore();
   const { user: clerkUser } = useUser();
+  const { openSignIn } = useClerk();
 
   const user = clerkUser
     ? {
-        id: clerkUser.id,
         name: clerkUser.fullName || clerkUser.firstName || "User",
         email: clerkUser.primaryEmailAddress?.emailAddress || "",
       }
-    : storeUser;
+    : null;
 
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : "N";
 
@@ -56,7 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           ) : (
             <button
               type="button"
-              onClick={openAuthModal}
+              onClick={() => openSignIn()}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-xs font-bold text-primary transition hover:bg-black/90 active:scale-[0.98]"
             >
               Sign In / Register
@@ -82,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             ) : (
               <button
                 type="button"
-                onClick={openAuthModal}
+                onClick={() => openSignIn()}
                 className="rounded-full bg-ink px-3 py-1 text-xs font-bold text-primary"
               >
                 Sign In
@@ -99,7 +96,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <BottomNav />
       <Toast />
       <LogExpenseModal />
-      <AuthModal />
     </div>
   );
 }

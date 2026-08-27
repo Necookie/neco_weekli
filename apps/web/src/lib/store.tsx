@@ -11,20 +11,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  checkRateLimit,
-  clearFailedAttempts,
-  getActiveSession,
-  getRegisteredUsers,
-  hashPassword,
-  recordFailedAttempt,
-  saveRegisteredUsers,
-  setActiveSession,
-  validateEmail,
-  validatePassword,
-  type StoredUserAccount,
-  type UserProfile,
-} from "./auth";
 import { computeDashboard, type Dashboard } from "./dashboard.ts";
 import { CLEAN_INITIAL_STATE, DEFAULT_STATE, DEFAULT_TARGET_SLIDERS, DEMO_PLAYGROUND_STATE } from "./seed.ts";
 import { loadInitial, nextId, STORAGE_KEY } from "./storage.ts";
@@ -58,13 +44,6 @@ type AddBillInput = {
 type Ctx = {
   state: AppState;
   dashboard: Dashboard;
-  user: UserProfile | null;
-  isAuthModalOpen: boolean;
-  openAuthModal: () => void;
-  closeAuthModal: () => void;
-  signIn: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (name: string, email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
-  signOut: () => void;
   addExpense: (input: AddExpenseInput) => void;
   addBill: (input: AddBillInput) => void;
   addMoney: (amountMajor: number) => void;
@@ -87,8 +66,6 @@ const AppDataContext = createContext<Ctx | null>(null);
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(DEFAULT_STATE);
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [isAuthModalOpen, setAuthModalOpen] = useState(false);
   const hydrated = useRef(false);
   const [isLogExpenseOpen, setLogExpenseOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -98,7 +75,6 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   // Hydrate from localStorage on mount (client-only).
   useEffect(() => {
     setState(loadInitial());
-    setUser(getActiveSession());
     hydrated.current = true;
   }, []);
 
@@ -128,105 +104,6 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), 2500);
   }, []);
-
-  // ─── Auth methods with security guardrails ──────────────────────────────────
-
-  const signIn = useCallback(
-    async (email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
-      const cleanEmail = email.trim().toLowerCase();
-      if (!validateEmail(cleanEmail)) {
-        return { success: false, error: "Please provide a valid email address." };
-      }
-
-      // Check rate limit
-      const rate = checkRateLimit(cleanEmail);
-      if (!rate.allowed) {
-        return {
-          success: false,
-          error: `Too many failed attempts. Please wait ${rate.waitSeconds}s.`,
-        };
-      }
-
-      const users = getRegisteredUsers();
-      const existing = users.find((u) => u.email.toLowerCase() === cleanEmail);
-      if (!existing) {
-        recordFailedAttempt(cleanEmail);
-        return { success: false, error: "No account found with this email." };
-      }
-
-      const hashed = await hashPassword(pass);
-      if (existing.passwordHash !== hashed) {
-        recordFailedAttempt(cleanEmail);
-        return { success: false, error: "Incorrect password." };
-      }
-
-      clearFailedAttempts(cleanEmail);
-      const sessionUser: UserProfile = {
-        id: existing.id,
-        name: existing.name,
-        email: existing.email,
-        createdAt: existing.createdAt,
-      };
-      setUser(sessionUser);
-      setActiveSession(sessionUser);
-      notify(`Welcome back, ${existing.name}!`);
-      return { success: true };
-    },
-    [notify],
-  );
-
-  const signUp = useCallback(
-    async (name: string, email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
-      const cleanName = name.trim();
-      const cleanEmail = email.trim().toLowerCase();
-      if (!cleanName) {
-        return { success: false, error: "Please enter your name." };
-      }
-      if (!validateEmail(cleanEmail)) {
-        return { success: false, error: "Please provide a valid email address." };
-      }
-
-      const passCheck = validatePassword(pass);
-      if (!passCheck.valid) {
-        return { success: false, error: passCheck.message };
-      }
-
-      const users = getRegisteredUsers();
-      const duplicate = users.some((u) => u.email.toLowerCase() === cleanEmail);
-      if (duplicate) {
-        return { success: false, error: "An account with this email already exists." };
-      }
-
-      const hashed = await hashPassword(pass);
-      const newAccount: StoredUserAccount = {
-        id: `u_${Date.now()}`,
-        name: cleanName,
-        email: cleanEmail,
-        passwordHash: hashed,
-        createdAt: new Date().toISOString(),
-      };
-
-      saveRegisteredUsers([...users, newAccount]);
-
-      const sessionUser: UserProfile = {
-        id: newAccount.id,
-        name: newAccount.name,
-        email: newAccount.email,
-        createdAt: newAccount.createdAt,
-      };
-      setUser(sessionUser);
-      setActiveSession(sessionUser);
-      notify(`Account created! Welcome, ${cleanName}.`);
-      return { success: true };
-    },
-    [notify],
-  );
-
-  const signOut = useCallback(() => {
-    setUser(null);
-    setActiveSession(null);
-    notify("Signed out");
-  }, [notify]);
 
   // ─── Financial Engine actions ───────────────────────────────────────────────
 
@@ -373,13 +250,6 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const value: Ctx = {
     state,
     dashboard,
-    user,
-    isAuthModalOpen,
-    openAuthModal: () => setAuthModalOpen(true),
-    closeAuthModal: () => setAuthModalOpen(false),
-    signIn,
-    signUp,
-    signOut,
     addExpense,
     addBill,
     addMoney,

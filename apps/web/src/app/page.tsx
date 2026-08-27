@@ -17,9 +17,9 @@ import { useAppStore } from "@/lib/store";
 export default function Home() {
   const router = useRouter();
   const { user: clerkUser } = useUser();
-  const { state, user, dashboard: d } = useAppStore();
+  const { state, dashboard: d } = useAppStore();
 
-  const userName = clerkUser?.firstName || clerkUser?.fullName || user?.name || "Neco";
+  const userName = clerkUser?.firstName || clerkUser?.fullName || "Neco";
 
   // If the user has not completed onboarding, smoothly route to the calibration wizard
   useEffect(() => {
