@@ -14,6 +14,7 @@
   "dependencies": {
     "@clerk/nextjs": "^7.8.2",
     "@neco/core": "workspace:*",
+    "drizzle-orm": "^0.38.4",
     "lucide-react": "^1.27.0",
     "next": "^15.1.0",
     "react": "^19.0.0",

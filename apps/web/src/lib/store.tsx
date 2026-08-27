@@ -1,5 +1,6 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import { type Bill, type RecurrenceFrequency, toMinor } from "@neco/core";
 import {
   createContext,
@@ -13,6 +14,14 @@ import {
 } from "react";
 import { computeDashboard, type Dashboard } from "./dashboard.ts";
 import { CLEAN_INITIAL_STATE, DEFAULT_STATE, DEFAULT_TARGET_SLIDERS, DEMO_PLAYGROUND_STATE } from "./seed.ts";
+import {
+  fetchUserStateAction,
+  persistBillAction,
+  persistExpenseAction,
+  persistMoneyAction,
+  persistOnboardingAction,
+  persistSettingsAction,
+} from "./server/actions.ts";
 import { loadInitial, nextId, STORAGE_KEY } from "./storage.ts";
 import type {
   AppState,
@@ -71,14 +80,41 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { isLoaded, isSignedIn } = useUser();
 
-  // Hydrate from localStorage on mount (client-only).
+  // Hydrate on mount / whenever sign-in state resolves. Signed-in users are
+  // backed by Turso (source of truth); localStorage is only the last-known
+  // cache we fall back to if the server fetch fails (offline, DB hiccup) —
+  // every route requires auth (middleware.ts), so the signed-out branch only
+  // matters for the brief window before Clerk finishes loading.
   useEffect(() => {
-    setState(loadInitial());
-    hydrated.current = true;
-  }, []);
+    if (!isLoaded) return;
+    let cancelled = false;
 
-  // Debounced localStorage persistence (300 ms after last state change).
+    if (isSignedIn) {
+      fetchUserStateAction()
+        .then((s) => {
+          if (!cancelled) setState(s);
+        })
+        .catch((err) => {
+          console.error("Failed to load account data, using local cache:", err);
+          if (!cancelled) setState(loadInitial());
+        })
+        .finally(() => {
+          if (!cancelled) hydrated.current = true;
+        });
+    } else {
+      setState(loadInitial());
+      hydrated.current = true;
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoaded, isSignedIn]);
+
+  // Debounced localStorage persistence (300 ms after last state change) —
+  // acts as the offline-read cache described above.
   useEffect(() => {
     if (!hydrated.current) return;
     if (persistTimer.current) clearTimeout(persistTimer.current);
@@ -107,6 +143,20 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   // ─── Financial Engine actions ───────────────────────────────────────────────
 
+  // Fire a persistence call for a signed-in user without blocking the
+  // (already-applied) optimistic UI update; surface failures via a toast
+  // rather than throwing, since the change is already visible locally.
+  const persistInBackground = useCallback(
+    (label: string, run: () => Promise<void>) => {
+      if (!isSignedIn) return;
+      run().catch((err) => {
+        console.error(`Failed to save ${label}:`, err);
+        notify(`Saved locally, but couldn't sync ${label} to your account.`);
+      });
+    },
+    [isSignedIn, notify],
+  );
+
   const addExpense = useCallback(
     ({ title, category, amountMajor, dayIndex, isEssential }: AddExpenseInput) => {
       setState((s) => ({
@@ -117,8 +167,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         ],
       }));
       notify(`Logged ${title}`);
+      persistInBackground("that expense", () =>
+        persistExpenseAction({ title, category, amountMajor, dayIndex, isEssential }),
+      );
     },
-    [notify],
+    [notify, persistInBackground],
   );
 
   const addBill = useCallback(
@@ -137,8 +190,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         accruals: [...s.accruals, { billId: id, accrued: 0 }],
       }));
       notify(`Added ${title}`);
+      persistInBackground("that bill", () =>
+        persistBillAction({ title, monthlyAmountMajor, dueDayOfMonth, frequency }),
+      );
     },
-    [notify],
+    [notify, persistInBackground],
   );
 
   const addMoney = useCallback(
@@ -155,13 +211,18 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         ],
       }));
       notify(`Added ₱${amountMajor.toLocaleString("en-PH")} to savings`);
+      persistInBackground("that deposit", () => persistMoneyAction(amountMajor));
     },
-    [notify],
+    [notify, persistInBackground],
   );
 
-  const updateSettings = useCallback((partial: Partial<Settings>) => {
-    setState((s) => ({ ...s, settings: { ...s.settings, ...partial } }));
-  }, []);
+  const updateSettings = useCallback(
+    (partial: Partial<Settings>) => {
+      setState((s) => ({ ...s, settings: { ...s.settings, ...partial } }));
+      persistInBackground("your settings", () => persistSettingsAction(partial));
+    },
+    [persistInBackground],
+  );
 
   const updateTargetSliders = useCallback((partial: Partial<TargetSliders>) => {
     setState((s) => ({
@@ -227,8 +288,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
       }
       notify("Plan applied successfully! Ready for your week.");
+      persistInBackground("your plan", () => persistOnboardingAction(data));
     },
-    [state.settings, notify],
+    [state.settings, notify, persistInBackground],
   );
 
   const loadDemoData = useCallback(() => {
