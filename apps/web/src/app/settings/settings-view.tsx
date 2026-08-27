@@ -1,5 +1,6 @@
 "use client";
 
+import { Show, SignInButton, useClerk, useUser } from "@clerk/nextjs";
 import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
 import { User } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -8,6 +9,8 @@ import { PageHeading } from "@/components/page-heading";
 import { useAppStore } from "@/lib/store";
 
 export function SettingsView() {
+  const { user, isLoaded } = useUser();
+  const { signOut, openUserProfile } = useClerk();
   const { state, updateSettings, resetDemo, notify } = useAppStore();
   const [income, setIncome] = useState(String(toMajor(state.settings.income)));
   const [savingsPct, setSavingsPct] = useState(String(Math.round(state.settings.savingsPct * 100)));
@@ -65,7 +68,7 @@ export function SettingsView() {
       <PageHeading title="Settings" subtitle="Your weekly plan and preferences" />
 
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
-        {/* Profile Card */}
+        {/* Account & Authentication */}
         <section className="col-span-full rounded-xl bg-canvas p-5 lg:p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -73,20 +76,51 @@ export function SettingsView() {
                 <User className="size-5 text-ink-deep" />
               </span>
               <div>
-                <h2 className="text-sm font-semibold text-ink">User Profile</h2>
-                <p className="text-xs text-mute">
-                  Neco · Personal Finance &amp; Runway Tracker
-                </p>
+                <h2 className="text-sm font-semibold text-ink">Account &amp; Security</h2>
+                <Show when="signed-in">
+                  <p className="text-xs text-mute">
+                    Signed in as{" "}
+                    <strong className="text-ink">
+                      {user?.primaryEmailAddress?.emailAddress ?? user?.fullName ?? "User"}
+                    </strong>
+                  </p>
+                </Show>
+                <Show when="signed-out">
+                  <p className="text-xs text-mute">
+                    Running in local demo mode. Sign in with Clerk to sync across devices.
+                  </p>
+                </Show>
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleReset}
-              className="rounded-xl bg-canvas px-4 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
-            >
-              Reset to Defaults
-            </button>
+            <div className="flex items-center gap-2">
+              <Show when="signed-in">
+                <button
+                  type="button"
+                  onClick={() => openUserProfile()}
+                  className="rounded-xl bg-canvas-soft px-4 py-2 text-xs font-semibold text-ink transition hover:bg-black/10 active:scale-[0.98]"
+                >
+                  Manage Account
+                </button>
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="rounded-xl bg-canvas px-4 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
+                >
+                  Sign Out
+                </button>
+              </Show>
+              <Show when="signed-out">
+                <SignInButton mode="modal">
+                  <button
+                    type="button"
+                    className="rounded-xl bg-primary px-4 py-2 font-display text-xs font-extrabold text-on-primary transition hover:bg-primary-active active:scale-[0.98]"
+                  >
+                    Sign In with Clerk
+                  </button>
+                </SignInButton>
+              </Show>
+            </div>
           </div>
         </section>
 
