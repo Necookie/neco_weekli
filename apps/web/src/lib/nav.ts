@@ -1,4 +1,5 @@
 import {
+  Compass,
   LayoutDashboard,
   ListChecks,
   PiggyBank,
@@ -15,6 +16,7 @@ export type NavItem = {
 
 export const NAV: NavItem[] = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Runway", href: "/runway", icon: Compass },
   { label: "Bills", href: "/bills", icon: Receipt },
   { label: "Savings", href: "/savings", icon: PiggyBank },
   { label: "Activity", href: "/activity", icon: ListChecks },

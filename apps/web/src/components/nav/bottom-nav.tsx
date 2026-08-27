@@ -16,7 +16,7 @@ export function BottomNav() {
 
       <FabLogExpenseButton />
 
-      {NAV.slice(2, 4).map((item) => (
+      {NAV.slice(2, 5).map((item) => (
         <BottomLink key={item.href} item={item} active={isActive(item.href, pathname)} />
       ))}
     </nav>
