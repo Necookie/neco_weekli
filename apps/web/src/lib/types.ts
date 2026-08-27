@@ -65,6 +65,7 @@ export type Settings = {
   currency: string;
   billReminders: boolean;
   rolloverEnabled: boolean;
+  hasCompletedOnboarding?: boolean;
 };
 
 export type SavingsAccount = {

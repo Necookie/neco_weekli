@@ -3,6 +3,7 @@
 import { Show, SignInButton, useClerk, useUser } from "@clerk/nextjs";
 import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
 import { User } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Field, inputCls } from "@/components/ui/field";
 import { PageHeading } from "@/components/page-heading";
@@ -93,19 +94,25 @@ export function SettingsView() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/onboarding"
+                className="rounded-xl border border-black/10 bg-canvas-soft px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-black/10 active:scale-[0.98]"
+              >
+                Recalibrate Plan (Wizard)
+              </Link>
               <Show when="signed-in">
                 <button
                   type="button"
                   onClick={() => openUserProfile()}
-                  className="rounded-xl bg-canvas-soft px-4 py-2 text-xs font-semibold text-ink transition hover:bg-black/10 active:scale-[0.98]"
+                  className="rounded-xl bg-canvas-soft px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-black/10 active:scale-[0.98]"
                 >
                   Manage Account
                 </button>
                 <button
                   type="button"
                   onClick={() => signOut()}
-                  className="rounded-xl bg-canvas px-4 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
+                  className="rounded-xl bg-canvas px-3.5 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
                 >
                   Sign Out
                 </button>

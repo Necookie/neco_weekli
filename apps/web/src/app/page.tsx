@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import { ActivityCard } from "@/components/dashboard/activity-card";
 import { BillsCard } from "@/components/dashboard/bills-card";
 import { DangerCard } from "@/components/dashboard/danger-card";
@@ -10,7 +12,7 @@ import { WeekOverview } from "@/components/dashboard/week-overview";
 import { useAppStore } from "@/lib/store";
 
 export default function Home() {
-  const { dashboard: d } = useAppStore();
+  const { state, dashboard: d } = useAppStore();
 
   return (
     <>
@@ -25,6 +27,28 @@ export default function Home() {
       <div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
         {/* Main column */}
         <div className="flex flex-col gap-4 lg:col-span-2 lg:gap-6">
+          {!state.settings.hasCompletedOnboarding && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary-pale/60 p-4 text-xs">
+              <div className="flex items-center gap-2.5">
+                <span className="grid size-8 place-items-center rounded-lg bg-primary text-ink-deep font-bold">
+                  <Sparkles className="size-4" />
+                </span>
+                <div>
+                  <p className="font-bold text-ink-deep">Personalize Your Weekli Plan</p>
+                  <p className="text-body">
+                    Calibrate your income, subscriptions, and runway in 60 seconds.
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/onboarding"
+                className="rounded-xl bg-ink px-4 py-2 font-display text-xs font-bold text-primary transition hover:bg-black/90 active:scale-[0.98]"
+              >
+                Start Calibration →
+              </Link>
+            </div>
+          )}
+
           <HeroCard d={d} />
           <VaultSplit d={d} />
           <WeekOverview d={d} />
