@@ -1,4 +1,3 @@
-import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LogExpenseModal } from "@/components/dashboard/log-expense-modal";
@@ -23,32 +22,18 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex flex-col gap-4">
           <SidebarLogExpenseButton />
 
-          <Show when="signed-in">
-            <div className="flex items-center gap-2.5 rounded-xl border border-black/5 bg-canvas-soft/60 p-2">
-              <UserButton
-                appearance={{
-                  elements: {
-                    userButtonAvatarBox: "size-8",
-                  },
-                }}
-              />
-              <div className="min-w-0 text-xs leading-tight">
-                <p className="truncate font-semibold text-ink">Account</p>
-                <p className="text-[11px] text-mute">Synced with Clerk</p>
-              </div>
+          <Link
+            href="/settings"
+            className="flex items-center gap-2.5 rounded-xl border border-black/5 bg-canvas-soft/60 p-2.5 transition hover:bg-canvas-soft"
+          >
+            <span className="grid size-8 place-items-center rounded-full bg-ink text-xs font-semibold text-primary">
+              N
+            </span>
+            <div className="min-w-0 text-xs leading-tight">
+              <p className="truncate font-semibold text-ink">Neco</p>
+              <p className="text-[11px] text-mute">Local plan</p>
             </div>
-          </Show>
-
-          <Show when="signed-out">
-            <SignInButton mode="modal">
-              <button
-                type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-xs font-bold text-primary transition hover:bg-black/90 active:scale-[0.98]"
-              >
-                Sign in / Register
-              </button>
-            </SignInButton>
-          </Show>
+          </Link>
         </div>
       </aside>
 
@@ -57,35 +42,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* Mobile top bar */}
         <header className="flex items-center justify-between px-4 py-3 lg:hidden">
           <Wordmark />
-          <div className="flex items-center gap-2">
-            <Show when="signed-in">
-              <UserButton
-                appearance={{
-                  elements: {
-                    userButtonAvatarBox: "size-8",
-                  },
-                }}
-              />
-            </Show>
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <button
-                  type="button"
-                  className="rounded-full bg-ink px-3 py-1 text-xs font-bold text-primary"
-                >
-                  Sign in
-                </button>
-              </SignInButton>
-            </Show>
-          </div>
+          <Link
+            href="/settings"
+            aria-label="Settings"
+            className="grid size-9 place-items-center rounded-full bg-ink text-sm font-semibold text-primary"
+          >
+            N
+          </Link>
         </header>
 
         <main className="mx-auto w-full max-w-6xl px-4 pb-28 lg:px-8 lg:py-8">
           {children}
         </main>
       </div>
-
-
 
       <BottomNav />
       <Toast />
