@@ -1,12 +1,16 @@
 "use client";
 
+import { SignedIn, SignedOut, SignInButton, useClerk, useUser } from "@clerk/nextjs";
 import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
+import { ShieldCheck, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Field, inputCls } from "@/components/ui/field";
 import { PageHeading } from "@/components/page-heading";
 import { useAppStore } from "@/lib/store";
 
 export function SettingsView() {
+  const { user, isLoaded } = useUser();
+  const { signOut, openUserProfile } = useClerk();
   const { state, updateSettings, resetDemo, notify } = useAppStore();
   const [income, setIncome] = useState(String(toMajor(state.settings.income)));
   const [savingsPct, setSavingsPct] = useState(String(Math.round(state.settings.savingsPct * 100)));
@@ -18,6 +22,7 @@ export function SettingsView() {
   const [currency, setCurrency] = useState(state.settings.currency);
   const [billReminders, setBillReminders] = useState(state.settings.billReminders);
   const [rolloverEnabled, setRolloverEnabled] = useState(state.settings.rolloverEnabled);
+
 
   // Re-sync the staged form whenever the underlying settings change from
   // outside this form (e.g. Sign out resetting to defaults).
@@ -64,6 +69,62 @@ export function SettingsView() {
       <PageHeading title="Settings" subtitle="Your weekly plan and preferences" />
 
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
+        {/* Account & Authentication */}
+        <section className="col-span-full rounded-xl bg-canvas p-5 lg:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="grid size-10 place-items-center rounded-xl bg-primary/20 text-ink">
+                <User className="size-5 text-ink-deep" />
+              </span>
+              <div>
+                <h2 className="text-sm font-semibold text-ink">Account &amp; Security</h2>
+                <SignedIn>
+                  <p className="text-xs text-mute">
+                    Signed in as{" "}
+                    <strong className="text-ink">
+                      {user?.primaryEmailAddress?.emailAddress ?? user?.fullName ?? "User"}
+                    </strong>
+                  </p>
+                </SignedIn>
+                <SignedOut>
+                  <p className="text-xs text-mute">
+                    Running in local demo mode. Sign in with Clerk to sync across devices.
+                  </p>
+                </SignedOut>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <SignedIn>
+                <button
+                  type="button"
+                  onClick={() => openUserProfile()}
+                  className="rounded-xl bg-canvas-soft px-4 py-2 text-xs font-semibold text-ink transition hover:bg-black/10 active:scale-[0.98]"
+                >
+                  Manage Account
+                </button>
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="rounded-xl bg-canvas px-4 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
+                >
+                  Sign Out
+                </button>
+              </SignedIn>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button
+                    type="button"
+                    className="rounded-xl bg-primary px-4 py-2 font-display text-xs font-extrabold text-on-primary transition hover:bg-primary-active active:scale-[0.98]"
+                  >
+                    Sign In with Clerk
+                  </button>
+                </SignInButton>
+              </SignedOut>
+            </div>
+          </div>
+        </section>
+
         {/* Weekly plan */}
         <section className="rounded-xl bg-canvas p-5 lg:p-6">
           <h2 className="mb-4 text-sm font-semibold text-mute">Weekly plan</h2>

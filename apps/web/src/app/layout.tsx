@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import { Inter, Manrope } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
@@ -46,13 +47,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
-      <body>
-        <AppDataProvider>
-          <AppShell>{children}</AppShell>
-        </AppDataProvider>
-        <PwaRegister />
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: "#9fe870",
+          colorBackground: "#ffffff",
+          colorInput: "#ffffff",
+          borderRadius: "1rem",
+          fontFamily: "var(--font-inter), sans-serif",
+        },
+        elements: {
+          formButtonPrimary:
+            "bg-primary hover:bg-primary-active text-ink-deep font-semibold rounded-xl transition shadow-xs",
+          card: "rounded-xl border border-black/5 shadow-sm bg-canvas",
+          headerTitle: "font-display font-extrabold text-ink tracking-tight",
+          headerSubtitle: "text-mute text-xs",
+          socialButtonsBlockButton: "rounded-xl border border-black/10 hover:bg-canvas-soft transition",
+        },
+      }}
+    >
+      <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
+        <body>
+          <AppDataProvider>
+            <AppShell>{children}</AppShell>
+          </AppDataProvider>
+          <PwaRegister />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
+
