@@ -50,6 +50,28 @@ export function getWeekday(d: Date): Weekday {
 }
 
 /**
+ * The Mon–Sun-ordered index of `d` within a week that starts on `weekStart`.
+ * E.g. with `weekStart = "MONDAY"`, Monday -> 0 … Sunday -> 6.
+ */
+export function weekdayIndexFrom(d: Date, weekStart: Weekday): number {
+  return (weekdayIndex(getWeekday(d)) - weekdayIndex(weekStart) + 7) % 7;
+}
+
+/**
+ * The inclusive [start, end] bounds of the spending week containing `today`,
+ * given the user-configured `weekStart` weekday.
+ */
+export function weekRange(
+  today: Date,
+  weekStart: Weekday,
+): { start: Date; end: Date } {
+  const offset = weekdayIndexFrom(today, weekStart);
+  const start = addDays(today, -offset);
+  const end = addDays(start, 6);
+  return { start, end };
+}
+
+/**
  * Count scheduled paydays landing on `payday` inside the half-open interval
  * [from, to). The `from` day counts if it is itself a payday.
  */

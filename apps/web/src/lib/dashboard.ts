@@ -7,7 +7,6 @@
  */
 
 import {
-  addDays,
   calculateBaselineBurn,
   calculateRunway,
   calculateTimeImpact,
@@ -20,6 +19,7 @@ import {
   getWeekday,
   normalizeToWeekly,
   toMinor,
+  weekRange,
   WEEKDAY_ORDER,
   type Weekday,
 } from "@neco/core";
@@ -34,17 +34,6 @@ import { ESSENTIAL_CATEGORIES, type AppState } from "./types.ts";
  */
 function todayIndex(now: Date): number {
   return WEEKDAY_ORDER.indexOf(getWeekday(now));
-}
-
-/**
- * Computes the last day (inclusive) of the spending week that contains `today`,
- * given the user-configured `weekStart` weekday.
- */
-function weekEndFrom(today: Date, weekStart: Weekday): Date {
-  const startIdx = WEEKDAY_ORDER.indexOf(weekStart);
-  const todayIdx = WEEKDAY_ORDER.indexOf(getWeekday(today));
-  const daysUntilNextStart = ((startIdx - todayIdx + 7) % 7) || 7;
-  return addDays(today, daysUntilNextStart - 1);
 }
 
 /**
@@ -91,7 +80,7 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
   const split = computeSplit({ income, bills, accruals, savingsPct, today: now, payday });
 
   const spentThisWeek = expenses.reduce((s, e) => s + toMinor(e.amountMajor), 0);
-  const weekEnd = weekEndFrom(now, weekStart);
+  const { end: weekEnd } = weekRange(now, weekStart);
   const cap = dailySafeCap({
     weeklySafeToSpend: split.safeToSpend,
     spentThisWeek,

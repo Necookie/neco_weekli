@@ -6,6 +6,7 @@ import {
   getWeekday,
   nextDueDate,
   paydaysBetween,
+  weekRange,
 } from "./dates.ts";
 
 const d = (iso: string) => new Date(iso + "T00:00:00Z");
@@ -46,4 +47,32 @@ test("nextDueDate clamps overflowing due days to month end", () => {
 
 test("addDays / diffDays are inverse", () => {
   assert.equal(diffDays(addDays(d("2026-07-28"), 10), d("2026-07-28")), 10);
+});
+
+test("weekRange spans exactly 7 days and includes today", () => {
+  // 2026-07-28 is a Tuesday.
+  const { start, end } = weekRange(d("2026-07-28"), "MONDAY");
+  assert.equal(start.toISOString().slice(0, 10), "2026-07-27");
+  assert.equal(end.toISOString().slice(0, 10), "2026-08-02");
+  assert.equal(diffDays(end, start), 6);
+});
+
+test("weekRange when today IS the configured week-start day", () => {
+  const { start, end } = weekRange(d("2026-07-27"), "MONDAY");
+  assert.equal(start.toISOString().slice(0, 10), "2026-07-27");
+  assert.equal(end.toISOString().slice(0, 10), "2026-08-02");
+});
+
+test("weekRange when today is the last day of the configured week", () => {
+  // Sunday, with weeks starting Monday -> today is the week's last day.
+  const { start, end } = weekRange(d("2026-08-02"), "MONDAY");
+  assert.equal(start.toISOString().slice(0, 10), "2026-07-27");
+  assert.equal(end.toISOString().slice(0, 10), "2026-08-02");
+});
+
+test("weekRange respects a non-Monday week start", () => {
+  // Weeks starting Sunday; 2026-07-28 (Tue) falls in the week of 2026-07-26.
+  const { start, end } = weekRange(d("2026-07-28"), "SUNDAY");
+  assert.equal(start.toISOString().slice(0, 10), "2026-07-26");
+  assert.equal(end.toISOString().slice(0, 10), "2026-08-01");
 });
