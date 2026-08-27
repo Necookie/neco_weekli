@@ -1,8 +1,10 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import Link from "next/link";
 import { Sparkles } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { ActivityCard } from "@/components/dashboard/activity-card";
 import { BillsCard } from "@/components/dashboard/bills-card";
 import { DangerCard } from "@/components/dashboard/danger-card";
@@ -13,10 +15,18 @@ import { WeekOverview } from "@/components/dashboard/week-overview";
 import { useAppStore } from "@/lib/store";
 
 export default function Home() {
+  const router = useRouter();
   const { user: clerkUser } = useUser();
   const { state, user, dashboard: d } = useAppStore();
 
   const userName = clerkUser?.firstName || clerkUser?.fullName || user?.name || "Neco";
+
+  // If the user has not completed onboarding, smoothly route to the calibration wizard
+  useEffect(() => {
+    if (state.settings.hasCompletedOnboarding === false) {
+      router.replace("/onboarding");
+    }
+  }, [state.settings.hasCompletedOnboarding, router]);
 
   return (
     <>
@@ -66,7 +76,6 @@ export default function Home() {
           <ActivityCard d={d} />
         </div>
       </div>
-
 
       <p className="mt-6 px-1 text-center text-xs text-mute">
         Weekli tracks and plans your money — it never holds or moves funds.

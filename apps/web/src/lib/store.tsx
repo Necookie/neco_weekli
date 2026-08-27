@@ -26,7 +26,7 @@ import {
   type UserProfile,
 } from "./auth";
 import { computeDashboard, type Dashboard } from "./dashboard.ts";
-import { DEFAULT_STATE, DEFAULT_TARGET_SLIDERS } from "./seed.ts";
+import { CLEAN_INITIAL_STATE, DEFAULT_STATE, DEFAULT_TARGET_SLIDERS, DEMO_PLAYGROUND_STATE } from "./seed.ts";
 import { loadInitial, nextId, STORAGE_KEY } from "./storage.ts";
 import type {
   AppState,
@@ -355,26 +355,18 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   );
 
   const loadDemoData = useCallback(() => {
-    setState(DEFAULT_STATE);
+    setState(DEMO_PLAYGROUND_STATE);
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_STATE));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(DEMO_PLAYGROUND_STATE));
     }
-    notify("Loaded sample demo dataset");
+    notify("Loaded sample playground dataset");
   }, [notify]);
 
   const resetDemo = useCallback(() => {
-    setState({
-      ...DEFAULT_STATE,
-      expenses: [],
-      bills: [],
-      accruals: [],
-      contributions: [],
-      settings: {
-        ...DEFAULT_STATE.settings,
-        hasCompletedOnboarding: false,
-      },
-    });
-    if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEY);
+    setState(CLEAN_INITIAL_STATE);
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
     notify("Reset all data to empty state");
   }, [notify]);
 

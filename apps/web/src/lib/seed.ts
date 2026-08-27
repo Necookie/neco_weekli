@@ -1,9 +1,5 @@
 /**
- * Default seed data for the demo / local-storage mode.
- *
- * These fixtures exercise the real @neco/core engine so headline numbers are
- * genuinely computed, not hard-coded. They also serve as the reset target when
- * the user signs out.
+ * Default seed data and initial clean states for Weekli.
  */
 
 import { toMinor } from "@neco/core";
@@ -23,23 +19,47 @@ export const DEFAULT_TARGET_SLIDERS: TargetSliders = {
   snacksMajor: 150,
 };
 
-// ─── Default settings ─────────────────────────────────────────────────────────
+// ─── Clean Initial Settings for New Users ───────────────────────────────────
 
 export const DEFAULT_SETTINGS: Settings = {
-  income: toMinor(15000),
-  savingsPct: 0.2,
-  essentialWeeklyBaselineMinor: toMinor(2000),
+  income: toMinor(2500),
+  savingsPct: 0.15,
+  essentialWeeklyBaselineMinor: toMinor(1000),
   payday: "MONDAY",
   weekStart: "MONDAY",
   currency: CURRENCY,
   billReminders: true,
   rolloverEnabled: true,
+  hasCompletedOnboarding: false,
 };
 
-// ─── Default state ────────────────────────────────────────────────────────────
+// ─── Clean Initial State (No fake placeholder mock expenses) ────────────────
 
-export const DEFAULT_STATE: AppState = {
+export const CLEAN_INITIAL_STATE: AppState = {
   settings: DEFAULT_SETTINGS,
+  bills: [],
+  accruals: [],
+  expenses: [],
+  savings: {
+    balanceMinor: toMinor(0),
+    goalMinor: toMinor(20000),
+    label: "Emergency & Runway Fund",
+    isLiquid: true,
+  },
+  contributions: [],
+  targetSliders: DEFAULT_TARGET_SLIDERS,
+};
+
+// ─── Playground Demo State (Explicitly loaded on demand) ─────────────────────
+
+export const DEMO_PLAYGROUND_STATE: AppState = {
+  settings: {
+    ...DEFAULT_SETTINGS,
+    income: toMinor(15000),
+    savingsPct: 0.2,
+    essentialWeeklyBaselineMinor: toMinor(2000),
+    hasCompletedOnboarding: true,
+  },
   bills: [
     { id: "netflix", title: "Netflix", monthlyAmount: toMinor(549), frequency: "MONTHLY", dueDayOfMonth: 15 },
     { id: "spotify", title: "Spotify", monthlyAmount: toMinor(199), frequency: "MONTHLY", dueDayOfMonth: 5 },
@@ -53,7 +73,6 @@ export const DEFAULT_STATE: AppState = {
     { billId: "gym", accrued: toMinor(350) },
     { billId: "cloud", accrued: toMinor(600) },
   ],
-  // This week's expenses (dayIndex: 0 = Mon … 6 = Sun).
   expenses: [
     { id: "e1", title: "Groceries", category: "Groceries", amountMajor: 650, dayIndex: 0, isEssential: true },
     { id: "e2", title: "Morning coffee", category: "Food & Dining", amountMajor: 120, dayIndex: 0, isEssential: false },
@@ -78,4 +97,4 @@ export const DEFAULT_STATE: AppState = {
   targetSliders: DEFAULT_TARGET_SLIDERS,
 };
 
-
+export const DEFAULT_STATE: AppState = CLEAN_INITIAL_STATE;
