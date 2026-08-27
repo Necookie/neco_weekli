@@ -87,9 +87,7 @@ export function SettingsView() {
                     Signed in as <strong className="text-ink">{user.name}</strong> ({user.email})
                   </p>
                 ) : (
-                  <p className="text-xs text-mute">
-                    Running in local plan mode. Sign in or register to secure your account.
-                  </p>
+                  <p className="text-xs text-mute">Loading your account…</p>
                 )}
               </div>
             </div>

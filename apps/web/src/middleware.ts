@@ -1,13 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
+// Only auth itself and static PWA assets are public — every app route
+// (dashboard, bills, savings, activity, settings, onboarding) requires a
+// signed-in Clerk session, since they all read/write the user's own data.
 const isPublicRoute = createRouteMatcher([
-  "/",
-  "/runway(.*)",
-  "/bills(.*)",
-  "/savings(.*)",
-  "/activity(.*)",
-  "/settings(.*)",
-  "/onboarding(.*)",
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/sso-callback(.*)",
