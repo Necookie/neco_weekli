@@ -2,12 +2,13 @@
 
 import { useClerk, useUser } from "@clerk/nextjs";
 import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
-import { Database, RotateCcw, ShieldCheck, Sparkles } from "lucide-react";
+import { AlertTriangle, Database, RotateCcw, ShieldCheck, Sparkles, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Field, inputCls } from "@/components/ui/field";
 import { PageHeading } from "@/components/page-heading";
 import { useAppStore } from "@/lib/store";
+import { deleteAccountAction } from "@/lib/server/actions";
 
 export function SettingsView() {
   const { user: clerkUser } = useUser();
@@ -32,6 +33,8 @@ export function SettingsView() {
   const [currency, setCurrency] = useState(state.settings.currency);
   const [billReminders, setBillReminders] = useState(state.settings.billReminders);
   const [rolloverEnabled, setRolloverEnabled] = useState(state.settings.rolloverEnabled);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   // Re-sync the staged form whenever settings change
   useEffect(() => {
@@ -66,6 +69,22 @@ export function SettingsView() {
       rolloverEnabled,
     });
     notify("Settings saved");
+  }
+
+  async function handleDeleteAccount() {
+    setDeletingAccount(true);
+    try {
+      await deleteAccountAction();
+      // The Clerk user no longer exists at this point — a hard navigation
+      // (rather than clerkSignOut()) cleanly drops all client-side Clerk
+      // state instead of operating on an account that's already gone.
+      window.location.href = "/sign-in";
+    } catch (err) {
+      console.error("Failed to delete account:", err);
+      notify("Couldn't delete your account. Please try again.");
+      setDeletingAccount(false);
+      setConfirmingDelete(false);
+    }
   }
 
   return (
@@ -277,6 +296,63 @@ export function SettingsView() {
             </div>
           </div>
         </section>
+
+        {/* Danger Zone */}
+        {user && (
+          <section className="col-span-full rounded-xl bg-canvas p-5 ring-1 ring-inset ring-negative/20 lg:p-6">
+            <div className="flex items-center gap-3">
+              <span className="grid size-10 place-items-center rounded-xl bg-negative/10 text-negative">
+                <AlertTriangle className="size-5" />
+              </span>
+              <div>
+                <h2 className="text-sm font-semibold text-ink">Danger Zone</h2>
+                <p className="text-xs text-mute">
+                  Permanently delete your account and every bill, expense, and savings
+                  record tied to it. This cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              {confirmingDelete ? (
+                <div className="rounded-xl bg-negative/5 p-4 ring-1 ring-inset ring-negative/20">
+                  <p className="text-sm font-semibold text-negative">
+                    Are you absolutely sure? Your account and all its data will be
+                    erased immediately.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={handleDeleteAccount}
+                      disabled={deletingAccount}
+                      className="flex items-center gap-1.5 rounded-xl bg-negative px-4 py-2 text-xs font-bold text-white transition hover:bg-negative/90 active:scale-[0.98] disabled:opacity-60"
+                    >
+                      <Trash2 className="size-3.5" />
+                      <span>{deletingAccount ? "Deleting…" : "Yes, delete my account"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmingDelete(false)}
+                      disabled={deletingAccount}
+                      className="rounded-xl border border-black/10 bg-canvas px-4 py-2 text-xs font-semibold text-ink transition hover:bg-black/5 disabled:opacity-60"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmingDelete(true)}
+                  className="flex items-center gap-1.5 rounded-xl bg-canvas px-3.5 py-2 text-xs font-semibold text-negative ring-1 ring-inset ring-negative/30 transition hover:bg-negative/10 active:scale-[0.98]"
+                >
+                  <Trash2 className="size-3.5" />
+                  <span>Delete Account</span>
+                </button>
+              )}
+            </div>
+          </section>
+        )}
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
