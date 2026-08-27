@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Compass } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Dashboard } from "@/lib/dashboard";
 
 export function HeroCard({ d }: { d: Dashboard }) {

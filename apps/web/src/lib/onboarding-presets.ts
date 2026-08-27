@@ -1,4 +1,4 @@
-import { toMinor, type RecurrenceFrequency } from "@neco/core";
+import type { RecurrenceFrequency } from "@neco/core";
 import type { TargetSliders } from "./types";
 
 export interface BillPreset {

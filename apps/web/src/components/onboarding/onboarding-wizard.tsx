@@ -3,12 +3,9 @@
 import {
   ArrowLeft,
   ArrowRight,
-  Check,
   CheckCircle2,
   Plus,
-  RotateCcw,
   Sparkles,
-  Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -32,7 +29,7 @@ import type { TargetSliders } from "@/lib/types";
 
 export function OnboardingWizard() {
   const router = useRouter();
-  const { state, applyOnboardingSetup, notify } = useAppStore();
+  const { applyOnboardingSetup } = useAppStore();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 

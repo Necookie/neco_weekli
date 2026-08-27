@@ -31,9 +31,9 @@ export function AuthModal() {
         clerk.openSignUp();
       }
       closeAuthModal();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Google Auth error:", err);
-      setError(err?.message || "Google sign-in could not be opened.");
+      setError(err instanceof Error ? err.message : "Google sign-in could not be opened.");
     } finally {
       setGoogleLoading(false);
     }

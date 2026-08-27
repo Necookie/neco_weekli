@@ -21,7 +21,6 @@ import {
   toMinor,
   weekRange,
   WEEKDAY_ORDER,
-  type Weekday,
 } from "@neco/core";
 import { LOCALE } from "./seed.ts";
 import { ESSENTIAL_CATEGORIES, type AppState } from "./types.ts";

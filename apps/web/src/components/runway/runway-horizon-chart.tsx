@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Flag, Milestone, TrendingUp } from "lucide-react";
+import { CheckCircle2, Milestone, TrendingUp } from "lucide-react";
 import type { Dashboard } from "@/lib/dashboard";
 
 export function RunwayHorizonChart({ d }: { d: Dashboard }) {

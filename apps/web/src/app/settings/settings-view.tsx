@@ -2,7 +2,7 @@
 
 import { useClerk, useUser } from "@clerk/nextjs";
 import { toMinor, toMajor, WEEKDAY_LABEL, WEEKDAY_ORDER, type Weekday } from "@neco/core";
-import { Database, RotateCcw, ShieldCheck, Sparkles, User } from "lucide-react";
+import { Database, RotateCcw, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Field, inputCls } from "@/components/ui/field";

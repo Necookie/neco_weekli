@@ -12,6 +12,7 @@
   "scripts": {
     "test": "node --test src/money.test.ts src/dates.test.ts src/engine.test.ts src/ledger.test.ts src/runway.test.ts",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
@@ -23,6 +24,8 @@
   "devDependencies": {
     "@types/node": "^22.10.0",
     "drizzle-kit": "^0.30.0",
-    "typescript": "^5.7.0"
+    "eslint": "^9.39.5",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.68.0"
   }
 }
