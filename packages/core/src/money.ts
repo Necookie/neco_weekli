@@ -13,7 +13,10 @@ export const toMajor = (m: Money): number => m / 100;
 export const addMoney = (...xs: Money[]): Money => xs.reduce((a, b) => a + b, 0);
 
 /** Floor a value at `min` (default 0) — Safe-to-Spend never shows negative. */
-export const clampMin = (m: Money, min: Money = 0): Money => (m < min ? min : m);
+export const clampMin = (m: Money, min: Money = 0): Money => {
+  if (!Number.isFinite(m)) return min;
+  return m < min ? min : m;
+};
 
 const _fmtCache = new Map<string, Intl.NumberFormat>();
 
@@ -22,13 +25,15 @@ export function formatMoney(
   currency = "PHP",
   locale = "en-PH",
 ): string {
+  const safeM = Number.isFinite(m) ? m : 0;
   const key = `${locale}:${currency}`;
   let fmt = _fmtCache.get(key);
   if (!fmt) {
     fmt = new Intl.NumberFormat(locale, { style: "currency", currency });
     _fmtCache.set(key, fmt);
   }
-  return fmt.format(m / 100);
+  const major = safeM === 0 ? 0 : safeM / 100;
+  return fmt.format(major);
 }
 
 /**
