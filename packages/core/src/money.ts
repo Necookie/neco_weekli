@@ -36,6 +36,7 @@ export function formatMoney(
  * method). The returned parts always sum exactly to `amount`.
  */
 export function allocate(amount: Money, weights: number[]): Money[] {
+  if (weights.length === 0) return [];
   const out = weights.map(() => 0);
   const total = weights.reduce((a, b) => a + b, 0);
   if (total <= 0) return out;
