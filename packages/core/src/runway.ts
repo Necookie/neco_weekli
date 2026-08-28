@@ -190,11 +190,11 @@ export interface RunwayResult {
  * the user's accessible liquid pool and baseline burn rate.
  */
 export function calculateRunway(input: RunwayInput): RunwayResult {
-  const liquidPool = Math.max(0, input.liquidPoolMinor);
-  const weeklyBurn = Math.max(0, input.weeklyBurn);
+  const liquidPool = Number.isFinite(input.liquidPoolMinor) ? Math.max(0, input.liquidPoolMinor) : 0;
+  const weeklyBurn = Number.isFinite(input.weeklyBurn) ? Math.max(0, input.weeklyBurn) : 0;
   const dailyBurn = Math.round(weeklyBurn / 7);
 
-  if (weeklyBurn === 0) {
+  if (weeklyBurn <= 0) {
     return {
       liquidPool,
       weeklyBurn: 0,
@@ -207,8 +207,9 @@ export function calculateRunway(input: RunwayInput): RunwayResult {
     };
   }
 
-  const weeks = Number((liquidPool / weeklyBurn).toFixed(1));
-  const days = Number(((liquidPool / weeklyBurn) * 7).toFixed(1));
+  const rawWeeks = liquidPool / weeklyBurn;
+  const weeks = Number(rawWeeks.toFixed(1));
+  const days = Number((rawWeeks * 7).toFixed(1));
 
   let health: RunwayHealth = "HEALTHY";
   if (weeks < 4) {
@@ -269,7 +270,7 @@ export function calculateTimeImpact(
   dailyBurnRate: Money,
   options?: TimeImpactOptions,
 ): TimeImpactResult {
-  if (dailyBurnRate <= 0) {
+  if (dailyBurnRate <= 0 || !Number.isFinite(dailyBurnRate) || !Number.isFinite(amountMinor)) {
     return {
       days: 0,
       weeks: 0,
