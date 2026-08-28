@@ -8,6 +8,11 @@ import {
   paydaysBetween,
   weekRange,
 } from "./dates.ts";
+import {
+  getFullDayLabelsForStart,
+  getShortDayLabelsForStart,
+  getWeekdaysForStart,
+} from "./constants.ts";
 
 const d = (iso: string) => new Date(iso + "T00:00:00Z");
 
@@ -99,4 +104,11 @@ test("weekRange respects a non-Monday week start", () => {
   const { start, end } = weekRange(d("2026-07-28"), "SUNDAY");
   assert.equal(start.toISOString().slice(0, 10), "2026-07-26");
   assert.equal(end.toISOString().slice(0, 10), "2026-08-01");
+});
+
+test("getWeekdaysForStart and day label helpers rotate accurately", () => {
+  assert.deepEqual(getWeekdaysForStart("MONDAY")[0], "MONDAY");
+  assert.deepEqual(getWeekdaysForStart("SUNDAY")[0], "SUNDAY");
+  assert.deepEqual(getShortDayLabelsForStart("SUNDAY"), ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]);
+  assert.deepEqual(getFullDayLabelsForStart("WEDNESDAY")[0], "Wednesday");
 });

@@ -68,3 +68,36 @@ export const WEEKDAY_LABEL: Record<Weekday, string> = {
   SATURDAY: "Saturday",
   SUNDAY: "Sunday",
 };
+
+export const WEEKDAY_LABEL_SHORT: Record<Weekday, string> = {
+  MONDAY: "Mon",
+  TUESDAY: "Tue",
+  WEDNESDAY: "Wed",
+  THURSDAY: "Thu",
+  FRIDAY: "Fri",
+  SATURDAY: "Sat",
+  SUNDAY: "Sun",
+};
+
+/**
+ * Returns all 7 weekdays rotated to start on the user-configured `weekStart`.
+ */
+export function getWeekdaysForStart(weekStart: Weekday = "MONDAY"): Weekday[] {
+  const startIdx = WEEKDAY_ORDER.indexOf(weekStart);
+  if (startIdx <= 0) return [...WEEKDAY_ORDER];
+  return [...WEEKDAY_ORDER.slice(startIdx), ...WEEKDAY_ORDER.slice(0, startIdx)];
+}
+
+/**
+ * Returns short 3-letter day labels rotated to match `weekStart`.
+ */
+export function getShortDayLabelsForStart(weekStart: Weekday = "MONDAY"): string[] {
+  return getWeekdaysForStart(weekStart).map((w) => WEEKDAY_LABEL_SHORT[w]);
+}
+
+/**
+ * Returns full day labels rotated to match `weekStart`.
+ */
+export function getFullDayLabelsForStart(weekStart: Weekday = "MONDAY"): string[] {
+  return getWeekdaysForStart(weekStart).map((w) => WEEKDAY_LABEL[w]);
+}
