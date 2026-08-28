@@ -98,9 +98,11 @@ export function nextDueDate(dueDay: number, from: Date): Date {
   let year = f.getUTCFullYear();
   let month = f.getUTCMonth();
 
+  const safeDueDay = Math.max(1, Math.min(31, Math.floor(dueDay) || 1));
+
   // Try the current month first; if the clamped day hasn't passed, use it.
   const lastDayCur = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  const dayCur = Math.min(dueDay, lastDayCur);
+  const dayCur = Math.min(safeDueDay, lastDayCur);
   const candCur = new Date(Date.UTC(year, month, dayCur));
   if (candCur >= f) return candCur;
 
@@ -108,6 +110,6 @@ export function nextDueDate(dueDay: number, from: Date): Date {
   month++;
   if (month > 11) { month = 0; year++; }
   const lastDayNext = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  const dayNext = Math.min(dueDay, lastDayNext);
+  const dayNext = Math.min(safeDueDay, lastDayNext);
   return new Date(Date.UTC(year, month, dayNext));
 }
