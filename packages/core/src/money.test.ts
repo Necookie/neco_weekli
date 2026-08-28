@@ -39,3 +39,20 @@ test("addMoney sums multiple Money values with no float drift", () => {
 test("allocate with a single weight allocates the full amount", () => {
   assert.deepEqual(allocate(toMinor(500), [1]), [toMinor(500)]);
 });
+
+test("allocate handles empty weights and zero amount cleanly", () => {
+  assert.deepEqual(allocate(1000, []), []);
+  assert.deepEqual(allocate(0, [1, 2, 3]), [0, 0, 0]);
+  assert.deepEqual(allocate(100, [0, 0]), [0, 0]);
+});
+
+test("clampMin handles non-finite inputs safely", () => {
+  assert.equal(clampMin(NaN, 10), 10);
+  assert.equal(clampMin(-0), 0);
+});
+
+test("formatMoney renders zero without negative signs and supports multiple currencies", () => {
+  assert.match(formatMoney(0, "PHP", "en-PH"), /0/);
+  assert.doesNotMatch(formatMoney(0, "PHP", "en-PH"), /-/);
+  assert.match(formatMoney(10000, "USD", "en-US"), /\$100/);
+});

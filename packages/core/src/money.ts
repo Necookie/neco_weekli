@@ -15,6 +15,7 @@ export const addMoney = (...xs: Money[]): Money => xs.reduce((a, b) => a + b, 0)
 /** Floor a value at `min` (default 0) — Safe-to-Spend never shows negative. */
 export const clampMin = (m: Money, min: Money = 0): Money => {
   if (!Number.isFinite(m)) return min;
+  if (m === 0) return 0;
   return m < min ? min : m;
 };
 
