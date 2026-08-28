@@ -34,6 +34,30 @@ test("nextDueDate clamps overflowing due days to month end", () => {
     nextDueDate(31, d("2026-02-01")).toISOString().slice(0, 10),
     "2026-02-28",
   );
+  // Leap year: 2028 is a leap year -> Feb 29
+  assert.equal(
+    nextDueDate(31, d("2028-02-01")).toISOString().slice(0, 10),
+    "2028-02-29",
+  );
+  // 30-day month: April 30
+  assert.equal(
+    nextDueDate(31, d("2026-04-01")).toISOString().slice(0, 10),
+    "2026-04-30",
+  );
+  // Year wrap: December to January
+  assert.equal(
+    nextDueDate(5, d("2026-12-20")).toISOString().slice(0, 10),
+    "2027-01-05",
+  );
+  // Out-of-bounds due days clamp cleanly
+  assert.equal(
+    nextDueDate(0, d("2026-07-10")).toISOString().slice(0, 10),
+    "2026-08-01",
+  );
+  assert.equal(
+    nextDueDate(99, d("2026-04-01")).toISOString().slice(0, 10),
+    "2026-04-30",
+  );
   // on/after semantics
   assert.equal(
     nextDueDate(15, d("2026-07-28")).toISOString().slice(0, 10),
