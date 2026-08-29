@@ -7,6 +7,7 @@ import {
   AlertCircle,
   Receipt,
 } from "lucide-react";
+import { toMinor } from "@neco/core";
 import type { Dashboard } from "@/lib/dashboard";
 import { useAppStore } from "@/lib/store";
 import type { TargetSliders } from "@/lib/types";
@@ -88,7 +89,7 @@ export function RunwaySliders({ d }: { d: Dashboard }) {
           )}
         </div>
         <span className="tabular-nums text-ink/70">
-          Total Target: <strong className="text-ink">₱{totalAllocatedMajor.toLocaleString("en-PH")}</strong>/wk
+          Total Target: <strong className="text-ink">{d.fmt(toMinor(totalAllocatedMajor))}</strong>/wk
         </span>
       </div>
 
@@ -100,7 +101,7 @@ export function RunwaySliders({ d }: { d: Dashboard }) {
               Survival Core (Commute &amp; Meals)
             </p>
             <span className="text-xs font-bold tabular-nums text-ink-deep">
-              ₱{(sliders.commuteMajor + sliders.campusMealsMajor).toLocaleString("en-PH")}/wk
+              {d.fmt(toMinor(sliders.commuteMajor + sliders.campusMealsMajor))}/wk
             </span>
           </div>
           <div className="space-y-4">
@@ -109,7 +110,7 @@ export function RunwaySliders({ d }: { d: Dashboard }) {
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-medium text-ink">{s.label}</span>
                   <span className="rounded bg-canvas px-2.5 py-0.5 font-bold tabular-nums text-ink shadow-xs">
-                    ₱{sliders[s.key].toLocaleString("en-PH")}
+                    {d.fmt(toMinor(sliders[s.key]))}
                   </span>
                 </div>
                 <input
@@ -135,7 +136,7 @@ export function RunwaySliders({ d }: { d: Dashboard }) {
               Girlfriend &amp; Discretionary
             </p>
             <span className="text-xs font-bold tabular-nums text-ink-deep">
-              ₱{(sliders.datesMajor + sliders.snacksMajor).toLocaleString("en-PH")}/wk
+              {d.fmt(toMinor(sliders.datesMajor + sliders.snacksMajor))}/wk
             </span>
           </div>
           <div className="space-y-4">
@@ -144,7 +145,7 @@ export function RunwaySliders({ d }: { d: Dashboard }) {
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-medium text-ink">{s.label}</span>
                   <span className="rounded bg-canvas px-2.5 py-0.5 font-bold tabular-nums text-ink shadow-xs">
-                    ₱{sliders[s.key].toLocaleString("en-PH")}
+                    {d.fmt(toMinor(sliders[s.key]))}
                   </span>
                 </div>
                 <input
