@@ -1,6 +1,5 @@
 "use client";
 
-import { DAY_LABEL_FULL } from "@neco/core";
 import { CategoryIcon } from "@/components/dashboard/category-icon";
 import { PageHeading } from "@/components/page-heading";
 import { TimeImpactBadge } from "@/components/ui";
@@ -32,7 +31,7 @@ export function ActivityView() {
         {days.map(([dayIndex, items]) => (
           <div key={dayIndex}>
             <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-mute">
-              {DAY_LABEL_FULL[dayIndex] ?? "Unknown"}
+              {items[0]?.dayFullLabel || "Unknown"}
             </p>
             <div className="divide-y divide-black/5 rounded-xl bg-canvas">
               {items.map((a) => (
