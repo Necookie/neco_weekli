@@ -1,20 +1,39 @@
 "use client";
 
-import { useState } from "react";
-import { DAY_LABEL_SHORT } from "@neco/core";
+import { useEffect, useState } from "react";
+import { getShortDayLabelsForStart, weekdayIndexFrom } from "@neco/core";
 import { Modal, modalInputCls } from "@/components/ui";
 import { CATEGORIES, ESSENTIAL_CATEGORIES, type Category } from "@/lib/types";
 import { useAppStore } from "@/lib/store";
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  PHP: "₱",
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+};
+
 export function LogExpenseModal() {
-  const { isLogExpenseOpen, closeLogExpense, addExpense } = useAppStore();
+  const { isLogExpenseOpen, closeLogExpense, addExpense, state } = useAppStore();
+  const weekStart = state.settings.weekStart;
+  const currencySymbol = CURRENCY_SYMBOLS[state.settings.currency] ?? state.settings.currency;
+  const dayLabels = getShortDayLabelsForStart(weekStart);
+
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<Category>(CATEGORIES[0]!);
   const [isEssential, setIsEssential] = useState(
     ESSENTIAL_CATEGORIES.has(CATEGORIES[0]!),
   );
   const [amount, setAmount] = useState("");
-  const [dayIndex, setDayIndex] = useState((new Date().getDay() + 6) % 7);
+  const [dayIndex, setDayIndex] = useState(weekdayIndexFrom(new Date(), weekStart));
+
+  // Keep dayIndex synced with weekStart when modal opens
+  useEffect(() => {
+    if (isLogExpenseOpen) {
+      setDayIndex(weekdayIndexFrom(new Date(), weekStart));
+    }
+  }, [isLogExpenseOpen, weekStart]);
 
   function reset() {
     setTitle("");
@@ -70,7 +89,7 @@ export function LogExpenseModal() {
           <span className="mb-1.5 block text-sm font-semibold text-ink">Amount</span>
           <div className="relative">
             <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-mute">
-              ₱
+              {currencySymbol}
             </span>
             <input
               type="number"
@@ -121,7 +140,7 @@ export function LogExpenseModal() {
             onChange={(e) => setDayIndex(Number(e.target.value))}
             className={modalInputCls}
           >
-            {DAY_LABEL_SHORT.map((day, i) => (
+            {dayLabels.map((day, i) => (
               <option key={day} value={i}>
                 {day}
               </option>
