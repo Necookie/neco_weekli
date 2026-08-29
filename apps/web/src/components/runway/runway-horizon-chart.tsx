@@ -11,16 +11,18 @@ export function RunwayHorizonChart({ d }: { d: Dashboard }) {
 
   // Horizon projections across 4, 8, 12, 16, 24 weeks
   const weeksHorizon = [4, 8, 12, 16, 24];
-  const projections = weeksHorizon.map((w) => ({
-    week: w,
-    projectedPool: Math.max(0, currentPool + surplusWeekly * w),
-    projectedWeeks:
+  const projections = weeksHorizon.map((w) => {
+    const projectedPool = Math.max(0, currentPool + surplusWeekly * w);
+    const projectedWeeks =
       weeklyBurn > 0
-        ? Number(
-            (Math.max(0, currentPool + surplusWeekly * w) / weeklyBurn).toFixed(1),
-          )
-        : Infinity,
-  }));
+        ? Number((projectedPool / weeklyBurn).toFixed(1))
+        : Infinity;
+    return {
+      week: w,
+      projectedPool,
+      projectedWeeks,
+    };
+  });
 
   const maxProjected = Math.max(
     1,
@@ -41,7 +43,7 @@ export function RunwayHorizonChart({ d }: { d: Dashboard }) {
       desc: "The gold standard 12-week runway",
     },
     {
-      title: "₱50,000 Emergency Reserve",
+      title: `${d.fmt(d.savings.goalMinor)} Emergency Reserve`,
       targetMinor: d.savings.goalMinor,
       desc: "Full long-term rainy day fund",
     },
@@ -64,6 +66,7 @@ export function RunwayHorizonChart({ d }: { d: Dashboard }) {
         <div className="mt-6 flex h-48 items-end gap-3 rounded-xl bg-canvas-soft/50 p-4">
           {projections.map((p) => {
             const heightPct = Math.max(12, Math.round((p.projectedPool / maxProjected) * 100));
+            const runwayLabel = p.projectedWeeks === Infinity ? "∞" : `${p.projectedWeeks}w`;
             return (
               <div key={p.week} className="flex flex-1 flex-col items-center gap-2">
                 <span className="text-[10px] font-bold tabular-nums text-ink">
@@ -73,12 +76,12 @@ export function RunwayHorizonChart({ d }: { d: Dashboard }) {
                   <div
                     className="w-full rounded-t-lg bg-primary transition-all duration-500 hover:bg-primary-active"
                     style={{ height: `${heightPct}%` }}
-                    title={`Week ${p.week}: ${d.fmt(p.projectedPool)} (${p.projectedWeeks} wks runway)`}
+                    title={`Week ${p.week}: ${d.fmt(p.projectedPool)} (${p.projectedWeeks === Infinity ? "∞" : p.projectedWeeks} wks runway)`}
                   />
                 </div>
                 <div className="text-center">
                   <p className="text-[11px] font-semibold text-ink">+{p.week}w</p>
-                  <p className="text-[9px] text-mute">{p.projectedWeeks}w run</p>
+                  <p className="text-[9px] text-mute">{runwayLabel} run</p>
                 </div>
               </div>
             );
@@ -110,7 +113,7 @@ export function RunwayHorizonChart({ d }: { d: Dashboard }) {
 
         <div className="mt-4 divide-y divide-black/5">
           {milestones.map((m) => {
-            const isCompleted = currentPool >= m.targetMinor;
+            const isCompleted = m.targetMinor <= 0 ? true : currentPool >= m.targetMinor;
             const remainingMinor = Math.max(0, m.targetMinor - currentPool);
             const weeksToHit =
               isCompleted
@@ -118,7 +121,10 @@ export function RunwayHorizonChart({ d }: { d: Dashboard }) {
                 : surplusWeekly > 0
                   ? Math.ceil(remainingMinor / surplusWeekly)
                   : Infinity;
-            const pctDone = Math.min(100, Math.round((currentPool / m.targetMinor) * 100));
+            const pctDone =
+              m.targetMinor > 0
+                ? Math.min(100, Math.round((currentPool / m.targetMinor) * 100))
+                : 100;
 
             return (
               <div key={m.title} className="py-3.5 first:pt-2 last:pb-0">
