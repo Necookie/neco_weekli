@@ -150,5 +150,30 @@ test("calculateTimeImpact computes magnitude-aware tag formatting and badge vari
   assert.equal(minorBurn.days, -1.0);
   assert.equal(minorBurn.formatted, "−1.0 day");
   assert.equal(minorBurn.badgeVariant, "neutral");
+
+  // Zero or negative daily burn rate guard
+  const zeroBurnImpact = calculateTimeImpact(toMinor(500), 0);
+  assert.equal(zeroBurnImpact.days, 0);
+  assert.equal(zeroBurnImpact.formatted, "0 days");
+
+  const zeroBurnOutflow = calculateTimeImpact(-toMinor(500), 0);
+  assert.equal(zeroBurnOutflow.days, 0);
+  assert.equal(zeroBurnOutflow.badgeVariant, "neutral");
+});
+
+test("calculateRunway handles 0 pool and negative/NaN inputs safely", () => {
+  const zeroBoth = calculateRunway({
+    liquidPoolMinor: 0,
+    weeklyBurn: 0,
+  });
+  assert.equal(zeroBoth.weeks, Infinity);
+  assert.equal(zeroBoth.isIndefinite, true);
+
+  const nanInput = calculateRunway({
+    liquidPoolMinor: NaN,
+    weeklyBurn: NaN,
+  });
+  assert.equal(nanInput.weeks, Infinity);
+  assert.equal(nanInput.isIndefinite, true);
 });
 
