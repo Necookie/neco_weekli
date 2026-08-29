@@ -135,3 +135,31 @@ test("computeDashboard: slider simulation surplus is safe-to-spend minus the tar
     d.split.safeToSpend - targetedMinor,
   );
 });
+
+test("computeDashboard: respects custom weekStart and rotates day labels accurately", () => {
+  const state = baseState({
+    settings: { ...baseState().settings, weekStart: "SUNDAY" },
+    expenses: [
+      { id: "e1", title: "Sunday Brunch", category: "Food & Dining", amountMajor: 150, dayIndex: 0 },
+      { id: "e2", title: "Tuesday Tacos", category: "Food & Dining", amountMajor: 100, dayIndex: 2 },
+    ],
+  });
+  const d = computeDashboard(state, NOW); // NOW is Tuesday
+  assert.equal(d.weekSpend.perDay[0]!.label, "Sun");
+  assert.equal(d.weekSpend.perDay[1]!.label, "Mon");
+  assert.equal(d.weekSpend.perDay[2]!.label, "Tue");
+  // Tuesday is index 2 when week starts Sunday
+  assert.equal(d.weekSpend.perDay[2]!.isToday, true);
+  assert.equal(d.weekSpend.perDay[0]!.minor, toMinor(150));
+  assert.equal(d.weekSpend.perDay[2]!.minor, toMinor(100));
+  assert.equal(d.activity[0]!.dayLabel, "Tue");
+  assert.equal(d.activity[0]!.dayFullLabel, "Tuesday");
+});
+
+test("computeDashboard: formats different currency codes cleanly", () => {
+  const state = baseState({
+    settings: { ...baseState().settings, currency: "USD" },
+  });
+  const d = computeDashboard(state, NOW);
+  assert.match(d.fmt(toMinor(100)), /\$100/);
+});
