@@ -13,27 +13,18 @@ import {
   computeSplit,
   dailySafeCap,
   dangerDays,
-  DAY_LABEL_FULL,
-  DAY_LABEL_SHORT,
   formatMoney,
-  getWeekday,
+  getFullDayLabelsForStart,
+  getShortDayLabelsForStart,
   normalizeToWeekly,
   toMinor,
+  weekdayIndexFrom,
   weekRange,
-  WEEKDAY_ORDER,
 } from "@neco/core";
 import { LOCALE } from "./seed.ts";
 import { ESSENTIAL_CATEGORIES, type AppState } from "./types.ts";
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
-
-/**
- * Returns the 0-based Monday-first index of `now` in the current week.
- * Monday = 0, Sunday = 6.
- */
-function todayIndex(now: Date): number {
-  return WEEKDAY_ORDER.indexOf(getWeekday(now));
-}
 
 /**
  * Returns a time-of-day greeting string appropriate for the current hour.
@@ -126,9 +117,11 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
     };
   });
 
-  // Per-day spend for the week bar chart.
-  const tIdx = todayIndex(now);
-  const perDay = DAY_LABEL_SHORT.map((label, i) => ({
+  // Per-day spend for the week bar chart, aligned with user's weekStart.
+  const tIdx = weekdayIndexFrom(now, weekStart);
+  const dayLabels = getShortDayLabelsForStart(weekStart);
+  const fullDayLabels = getFullDayLabelsForStart(weekStart);
+  const perDay = dayLabels.map((label, i) => ({
     label,
     minor: expenses
       .filter((e) => e.dayIndex === i)
@@ -155,8 +148,8 @@ export function computeDashboard(state: AppState, now: Date = new Date()) {
         isEssential,
         minor,
         timeImpact,
-        dayLabel: DAY_LABEL_SHORT[e.dayIndex] ?? "",
-        dayFullLabel: DAY_LABEL_FULL[e.dayIndex] ?? "",
+        dayLabel: dayLabels[e.dayIndex] ?? "",
+        dayFullLabel: fullDayLabels[e.dayIndex] ?? "",
         dayIndex: e.dayIndex,
       };
     });
