@@ -10,6 +10,14 @@ import { PageHeading } from "@/components/page-heading";
 import { useAppStore } from "@/lib/store";
 import { deleteAccountAction } from "@/lib/server/actions";
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  PHP: "₱",
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+};
+
 export function SettingsView() {
   const { user: clerkUser } = useUser();
   const { signOut: clerkSignOut, openSignIn } = useClerk();
@@ -35,6 +43,8 @@ export function SettingsView() {
   const [rolloverEnabled, setRolloverEnabled] = useState(state.settings.rolloverEnabled);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
 
   // Re-sync the staged form whenever settings change
   useEffect(() => {
@@ -148,7 +158,7 @@ export function SettingsView() {
             <Field label="Weekly income">
               <div className="relative">
                 <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-mute">
-                  ₱
+                  {currencySymbol}
                 </span>
                 <input
                   type="number"
@@ -201,7 +211,7 @@ export function SettingsView() {
             >
               <div className="relative">
                 <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-mute">
-                  ₱
+                  {currencySymbol}
                 </span>
                 <input
                   type="number"
