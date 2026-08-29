@@ -10,13 +10,13 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-around border-t border-black/5 bg-canvas/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur lg:hidden">
-      {NAV.slice(0, 2).map((item) => (
+      {NAV.slice(0, 3).map((item) => (
         <BottomLink key={item.href} item={item} active={isActive(item.href, pathname)} />
       ))}
 
       <FabLogExpenseButton />
 
-      {NAV.slice(2, 5).map((item) => (
+      {NAV.slice(3).map((item) => (
         <BottomLink key={item.href} item={item} active={isActive(item.href, pathname)} />
       ))}
     </nav>
