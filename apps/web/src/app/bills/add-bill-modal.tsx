@@ -8,6 +8,7 @@ import {
 } from "@neco/core";
 import { useState } from "react";
 import { Modal, modalInputCls } from "@/components/ui";
+import { getCurrencySymbol } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 
 const FREQUENCIES: RecurrenceFrequency[] = [
@@ -18,17 +19,9 @@ const FREQUENCIES: RecurrenceFrequency[] = [
   "ANNUALLY",
 ];
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  PHP: "₱",
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  JPY: "¥",
-};
-
 export function AddBillModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addBill, dashboard: d, state } = useAppStore();
-  const currencySymbol = CURRENCY_SYMBOLS[state.settings.currency] ?? state.settings.currency;
+  const currencySymbol = getCurrencySymbol(state.settings.currency);
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [frequency, setFrequency] = useState<RecurrenceFrequency>("MONTHLY");

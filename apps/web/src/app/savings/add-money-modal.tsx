@@ -2,19 +2,12 @@
 
 import { useState } from "react";
 import { Modal, modalInputCls } from "@/components/ui";
+import { getCurrencySymbol } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
-
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  PHP: "₱",
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  JPY: "¥",
-};
 
 export function AddMoneyModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addMoney, state } = useAppStore();
-  const currencySymbol = CURRENCY_SYMBOLS[state.settings.currency] ?? state.settings.currency;
+  const currencySymbol = getCurrencySymbol(state.settings.currency);
   const [amount, setAmount] = useState("");
 
   function handleSubmit(e: React.FormEvent) {

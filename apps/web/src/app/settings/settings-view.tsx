@@ -7,16 +7,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Field, inputCls } from "@/components/ui/field";
 import { PageHeading } from "@/components/page-heading";
+import { getCurrencySymbol } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import { deleteAccountAction } from "@/lib/server/actions";
-
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  PHP: "₱",
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  JPY: "¥",
-};
 
 export function SettingsView() {
   const { user: clerkUser } = useUser();
@@ -44,7 +37,7 @@ export function SettingsView() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
-  const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
+  const currencySymbol = getCurrencySymbol(currency);
 
   // Re-sync the staged form whenever settings change
   useEffect(() => {

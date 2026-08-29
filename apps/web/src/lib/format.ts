@@ -25,3 +25,21 @@ export function ordinal(n: number): string {
       return `${n}th`;
   }
 }
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  PHP: "₱",
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+  CAD: "CA$",
+  AUD: "A$",
+  SGD: "S$",
+};
+
+/**
+ * Returns the short currency glyph / symbol for standard international currencies.
+ */
+export function getCurrencySymbol(currency = "PHP"): string {
+  return CURRENCY_SYMBOLS[currency.toUpperCase()] ?? currency;
+}

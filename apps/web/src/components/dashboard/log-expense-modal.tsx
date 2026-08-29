@@ -3,21 +3,14 @@
 import { useEffect, useState } from "react";
 import { getShortDayLabelsForStart, weekdayIndexFrom } from "@neco/core";
 import { Modal, modalInputCls } from "@/components/ui";
+import { getCurrencySymbol } from "@/lib/format";
 import { CATEGORIES, ESSENTIAL_CATEGORIES, type Category } from "@/lib/types";
 import { useAppStore } from "@/lib/store";
-
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  PHP: "₱",
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  JPY: "¥",
-};
 
 export function LogExpenseModal() {
   const { isLogExpenseOpen, closeLogExpense, addExpense, state } = useAppStore();
   const weekStart = state.settings.weekStart;
-  const currencySymbol = CURRENCY_SYMBOLS[state.settings.currency] ?? state.settings.currency;
+  const currencySymbol = getCurrencySymbol(state.settings.currency);
   const dayLabels = getShortDayLabelsForStart(weekStart);
 
   const [title, setTitle] = useState("");
